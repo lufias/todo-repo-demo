@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Folder, List, getAllFolders, getListsByFolder } from '../../services/database';
+import { Folder, List, getAllFolders, getListsByFolder, addFolder as dbAddFolder, deleteFolder as dbDeleteFolder } from '../../services/database';
 
 interface SidebarState {
   folders: Folder[];
@@ -21,6 +21,15 @@ const initialState: SidebarState = {
 
 export const loadFolders = createAsyncThunk('sidebar/loadFolders', async () => {
   return await getAllFolders();
+});
+
+export const addFolder = createAsyncThunk('sidebar/addFolder', async (name: string) => {
+  return await dbAddFolder(name);
+});
+
+export const deleteFolder = createAsyncThunk('sidebar/deleteFolder', async (id: string) => {
+  await dbDeleteFolder(id);
+  return id;
 });
 
 export const loadListsByFolder = createAsyncThunk(
@@ -64,6 +73,12 @@ const sidebarSlice = createSlice({
       .addCase(loadFolders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to load folders';
+      })
+      .addCase(addFolder.fulfilled, (state, action) => {
+        state.folders.push(action.payload);
+      })
+      .addCase(deleteFolder.fulfilled, (state, action) => {
+        state.folders = state.folders.filter(folder => folder.id !== action.payload);
       })
       .addCase(loadListsByFolder.pending, (state) => {
         state.loading = true;

@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaFolder, FaChevronDown, FaChevronRight, FaEllipsisV, FaTrash, FaStickyNote } from 'react-icons/fa';
 import { FiFolderPlus } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { loadFolders, addFolder as addFolderThunk, deleteFolder as deleteFolderThunk } from '../store/slices/sidebarSlice';
 
 interface Folder {
   id: string;
@@ -10,12 +12,17 @@ interface Folder {
 }
 
 export default function Sidebar() {
-  const [folders, setFolders] = useState<Folder[]>([]);
+  const dispatch = useAppDispatch();
+  const folders = useAppSelector(state => state.sidebar.folders);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [addingFolder, setAddingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(loadFolders());
+  }, [dispatch]);
 
   const toggleFolder = (folderId: string) => {
     const newExpanded = new Set(expandedFolders);
@@ -37,12 +44,7 @@ export default function Sidebar() {
   };
 
   const handleAddFolder = (name: string) => {
-    const newFolder: Folder = {
-      id: Date.now().toString(),
-      name,
-      todos: [],
-    };
-    setFolders([...folders, newFolder]);
+    dispatch(addFolderThunk(name));
   };
 
   const handleSelectFolder = (folderId: string) => {
@@ -56,15 +58,12 @@ export default function Sidebar() {
   };
 
   const handleDeleteFolder = (folderId: string) => {
-    setFolders(folders.filter(folder => folder.id !== folderId));
+    dispatch(deleteFolderThunk(folderId));
   };
 
   const handleDeleteNote = (folderId: string, noteId: string) => {
-    setFolders(folders.map(folder =>
-      folder.id === folderId
-        ? { ...folder, todos: folder.todos.filter(todo => todo !== noteId) }
-        : folder
-    ));
+    // Stub: implement note deletion logic
+    console.log('Delete note', noteId, 'from folder', folderId);
   };
 
   return (
@@ -189,27 +188,7 @@ export default function Sidebar() {
               )}
             </div>
           </div>
-          {expandedFolders.has(folder.id) && (
-            <div className="ml-6 mt-1 space-y-1">
-              {folder.todos.map((todoId) => (
-                <div key={todoId} className="flex items-center justify-between group">
-                  <button
-                    onClick={() => handleSelectFolder(folder.id)}
-                    className="flex-1 text-left px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors font-normal"
-                  >
-                    Todo {todoId}
-                  </button>
-                  <button
-                    onClick={() => handleDeleteNote(folder.id, todoId)}
-                    className="p-1 opacity-0 group-hover:opacity-100 hover:bg-gray-100 rounded transition-all"
-                    title="Delete note"
-                  >
-                    <FaTrash className="text-red-400 text-xs" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Removed notes/lists display for now */}
         </div>
       ))}
     </div>
