@@ -1,5 +1,8 @@
 import localforage from 'localforage';
 
+// Configure localforage to use localStorage
+localforage.setDriver(localforage.LOCALSTORAGE);
+
 // Types
 export interface Folder {
   id: string;
