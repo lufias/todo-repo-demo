@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaFolder, FaChevronDown, FaChevronRight, FaEllipsisH, FaTrash, FaListUl } from 'react-icons/fa';
+import { FaFolder } from 'react-icons/fa';
 import { FiFolderPlus } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -11,6 +11,7 @@ import {
   loadListsByFolder,
   deleteList as deleteListThunk,
 } from '../store/slices/sidebarSlice';
+import SidebarFolder from './SidebarFolder';
 
 interface Folder {
   id: string;
@@ -75,6 +76,8 @@ export default function Sidebar() {
   const handleAddList = (folderId: string, content: string) => {
     dispatch(addListThunk({ folderId, content })).then(() => {
       dispatch(loadListsByFolder(folderId));
+      setNewListName('');
+      setAddingListFolderId(null);
     });
   };
 
@@ -150,154 +153,31 @@ export default function Sidebar() {
         )}
       </div>
       {folders.map((folder) => (
-        <div key={folder.id} className="rounded-lg">
-          <div className="flex items-center justify-between group">
-            <button
-              onClick={() => toggleFolder(folder.id)}
-              className="flex-1 flex items-center justify-between p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <div className="flex items-center space-x-2">
-                <FaFolder className="text-blue-400 text-base" />
-                <span className="text-gray-700 font-normal">{folder.name}</span>
-              </div>
-              {expandedFolders.has(folder.id) ? (
-                <FaChevronDown className="text-gray-400 text-sm" />
-              ) : (
-                <FaChevronRight className="text-gray-400 text-sm" />
-              )}
-            </button>
-            <div className="relative">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleDropdown(folder.id);
-                }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors ml-2 opacity-0 group-hover:opacity-100"
-                title="Folder options"
-              >
-                <FaEllipsisH className="text-gray-400 text-xs" />
-              </button>
-              {activeDropdown === folder.id && (
-                <div 
-                  className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    onClick={() => {
-                      setAddingListFolderId(folder.id);
-                      setActiveDropdown(null);
-                    }}
-                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <FaListUl className="mr-2 text-blue-400 text-sm" />
-                    Add List
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleDeleteFolder(folder.id);
-                      setActiveDropdown(null);
-                    }}
-                    className="w-full flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
-                  >
-                    <FaTrash className="mr-2 text-sm" />
-                    Delete Folder
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-          {expandedFolders.has(folder.id) && (
-            <div className="ml-6 mt-1 space-y-1">
-              {/* Add List input */}
-              {addingListFolderId === folder.id && (
-                <div className="flex items-center space-x-2 mb-2">
-                  <input
-                    autoFocus
-                    type="text"
-                    className="border rounded px-2 py-1 text-sm w-28 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    placeholder="List name"
-                    value={newListName}
-                    onChange={e => setNewListName(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && newListName.trim()) {
-                        handleAddList(folder.id, newListName.trim());
-                        setNewListName('');
-                        setAddingListFolderId(null);
-                      } else if (e.key === 'Escape') {
-                        setAddingListFolderId(null);
-                        setNewListName('');
-                      }
-                    }}
-                  />
-                  <button
-                    className="text-green-500 hover:text-green-700"
-                    title="Confirm"
-                    onClick={() => {
-                      if (newListName.trim()) {
-                        handleAddList(folder.id, newListName.trim());
-                        setNewListName('');
-                        setAddingListFolderId(null);
-                      }
-                    }}
-                  >
-                    ✓
-                  </button>
-                  <button
-                    className="text-red-400 hover:text-red-600"
-                    title="Cancel"
-                    onClick={() => {
-                      setAddingListFolderId(null);
-                      setNewListName('');
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
-              {/* Show lists for this folder */}
-              {lists
-                .filter(list => list.folderId === folder.id)
-                .map(list => (
-                  <div key={list.id} className="flex items-center justify-between group">
-                    <button
-                      className="flex-1 text-left px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors font-normal"
-                    >
-                      {list.content}
-                    </button>
-                    <div className="relative">
-                      <button
-                        onClick={e => {
-                          e.stopPropagation();
-                          setActiveListDropdown(activeListDropdown === list.id ? null : list.id);
-                        }}
-                        className="p-1 hover:bg-gray-100 rounded transition-colors ml-2 opacity-0 group-hover:opacity-100"
-                        title="List options"
-                      >
-                        <FaEllipsisH className="text-gray-400 text-xs" />
-                      </button>
-                      {activeListDropdown === list.id && (
-                        <div
-                          className="absolute right-0 mt-1 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
-                          onClick={e => e.stopPropagation()}
-                        >
-                          <button
-                            onClick={() => {
-                              handleDeleteList(list.id, folder.id);
-                              setActiveListDropdown(null);
-                            }}
-                            className="w-full flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
-                          >
-                            <FaTrash className="mr-2 text-sm" />
-                            Delete List
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
+        <SidebarFolder
+          key={folder.id}
+          folder={folder}
+          lists={lists}
+          expanded={expandedFolders.has(folder.id)}
+          onToggle={toggleFolder}
+          onDropdown={toggleDropdown}
+          dropdownOpen={activeDropdown === folder.id}
+          onAddListClick={folderId => {
+            setAddingListFolderId(folderId);
+            setActiveDropdown(null);
+          }}
+          addingList={addingListFolderId === folder.id}
+          newListName={newListName}
+          setNewListName={setNewListName}
+          onAddList={handleAddList}
+          onCancelAddList={() => {
+            setAddingListFolderId(null);
+            setNewListName('');
+          }}
+          onDeleteFolder={handleDeleteFolder}
+          activeListDropdown={activeListDropdown}
+          setActiveListDropdown={setActiveListDropdown}
+          onDeleteList={handleDeleteList}
+        />
       ))}
     </div>
   );
