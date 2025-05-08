@@ -11,7 +11,7 @@ interface Folder {
 
 interface SidebarProps {
   folders: Folder[];
-  onAddFolder: () => void;
+  onAddFolder: (name: string) => void;
   onSelectFolder: (folderId: string) => void;
   onAddNote: (folderId: string) => void;
   onDeleteFolder: (folderId: string) => void;
@@ -28,6 +28,8 @@ export default function Sidebar({
 }: SidebarProps) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [addingFolder, setAddingFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
   const navigate = useNavigate();
 
   const toggleFolder = (folderId: string) => {
@@ -53,13 +55,66 @@ export default function Sidebar({
     <div className="p-2 space-y-1 overflow-y-auto h-[calc(100%-4rem)]" onClick={handleClickOutside}>
       <div className="flex items-center justify-between mb-4">
         <span className="text-base font-medium text-gray-600">Folders</span>
-        <button
-          onClick={onAddFolder}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          title="Add new folder"
-        >
-          <FiFolderPlus className="text-blue-400 text-base" />
-        </button>
+        {addingFolder ? (
+          <div className="flex items-center space-x-2">
+            <FaFolder className="text-blue-400 text-base" />
+            <input
+              autoFocus
+              type="text"
+              className="border rounded px-2 py-1 text-sm w-28 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              placeholder="Folder name"
+              value={newFolderName}
+              onChange={e => setNewFolderName(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && newFolderName.trim()) {
+                  onAddFolder(newFolderName.trim());
+                  setNewFolderName('');
+                  setAddingFolder(false);
+                } else if (e.key === 'Escape') {
+                  setAddingFolder(false);
+                  setNewFolderName('');
+                }
+              }}
+            />
+            <button
+              className="text-green-500 hover:text-green-700"
+              title="Confirm"
+              onClick={() => {
+                if (newFolderName.trim()) {
+                  onAddFolder(newFolderName.trim());
+                  setNewFolderName('');
+                  setAddingFolder(false);
+                }
+              }}
+            >
+              ✓
+            </button>
+            <button
+              className="text-red-400 hover:text-red-600"
+              title="Cancel"
+              onClick={() => {
+                setAddingFolder(false);
+                setNewFolderName('');
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              setAddingFolder(true);
+              setTimeout(() => {
+                // Focus will be handled by autoFocus on input
+              }, 0);
+            }}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Add new folder"
+          >
+            <FiFolderPlus className="text-blue-400 text-base" />
+          </button>
+        )}
       </div>
       {folders.map((folder) => (
         <div key={folder.id} className="rounded-lg">
