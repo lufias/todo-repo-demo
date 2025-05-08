@@ -5,7 +5,7 @@ interface TaskItemProps {
   author: string;
   status?: 'rejected' | 'new' | undefined;
   color?: 'yellow' | 'blue' | 'green';
-  excerpt?: string;
+  description?: string;
 }
 
 const statusStyles = {
@@ -19,7 +19,7 @@ const barColors = {
   green: 'bg-green-300',
 };
 
-export default function TaskItem({ title, status, color = 'blue', excerpt }: TaskItemProps) {
+export default function TaskItem({ title, status, color = 'blue', description }: TaskItemProps) {
   return (
     <div className="flex items-center px-4 py-3 border-b last:border-b-0 bg-white">
       <div className={`w-1 h-8 rounded-full mr-3 ${barColors[color]}`} />
@@ -34,8 +34,8 @@ export default function TaskItem({ title, status, color = 'blue', excerpt }: Tas
             <span className="ml-2 px-2 py-0.5 rounded text-xs font-semibold bg-blue-200 text-blue-800">NEW</span>
           )}
         </div>
-        {excerpt && (
-          <div className="text-gray-400 text-sm leading-tight mb-1">{excerpt}</div>
+        {description && (
+          <div className="text-gray-400 text-sm leading-tight mb-1 line-clamp-2">{description}</div>
         )}        
       </div>
       <button className="mx-2 text-green-600 hover:text-green-800">
