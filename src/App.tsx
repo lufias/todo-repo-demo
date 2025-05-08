@@ -9,9 +9,7 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100">
-        <AppRoutes />
-      </div>
+      <AppRoutes />
     </Router>
   );
 }
