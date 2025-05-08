@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaFolder, FaChevronDown, FaChevronRight, FaEllipsisV, FaTrash, FaListUl } from 'react-icons/fa';
+import { FaFolder, FaChevronDown, FaChevronRight, FaEllipsisH, FaTrash, FaListUl } from 'react-icons/fa';
 import { FiFolderPlus } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -9,6 +9,7 @@ import {
   deleteFolder as deleteFolderThunk,
   addList as addListThunk,
   loadListsByFolder,
+  deleteList as deleteListThunk,
 } from '../store/slices/sidebarSlice';
 
 interface Folder {
@@ -26,6 +27,7 @@ export default function Sidebar() {
   const [newFolderName, setNewFolderName] = useState('');
   const [addingListFolderId, setAddingListFolderId] = useState<string | null>(null);
   const [newListName, setNewListName] = useState('');
+  const [activeListDropdown, setActiveListDropdown] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -72,6 +74,12 @@ export default function Sidebar() {
 
   const handleAddList = (folderId: string, content: string) => {
     dispatch(addListThunk({ folderId, content })).then(() => {
+      dispatch(loadListsByFolder(folderId));
+    });
+  };
+
+  const handleDeleteList = (listId: string, folderId: string) => {
+    dispatch(deleteListThunk(listId)).then(() => {
       dispatch(loadListsByFolder(folderId));
     });
   };
@@ -142,7 +150,7 @@ export default function Sidebar() {
         )}
       </div>
       {folders.map((folder) => (
-        <div key={folder.id} className="rounded-lg">
+        <div key={folder.id} className="rounded-lg group">
           <div className="flex items-center justify-between">
             <button
               onClick={() => toggleFolder(folder.id)}
@@ -164,10 +172,10 @@ export default function Sidebar() {
                   e.stopPropagation();
                   toggleDropdown(folder.id);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors ml-2"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors ml-2 opacity-0 group-hover:opacity-100"
                 title="Folder options"
               >
-                <FaEllipsisV className="text-gray-400 text-base" />
+                <FaEllipsisH className="text-gray-400 text-xs" />
               </button>
               {activeDropdown === folder.id && (
                 <div 
@@ -256,6 +264,35 @@ export default function Sidebar() {
                     >
                       {list.content}
                     </button>
+                    <div className="relative">
+                      <button
+                        onClick={e => {
+                          e.stopPropagation();
+                          setActiveListDropdown(activeListDropdown === list.id ? null : list.id);
+                        }}
+                        className="p-1 hover:bg-gray-100 rounded transition-colors ml-2 opacity-0 group-hover:opacity-100"
+                        title="List options"
+                      >
+                        <FaEllipsisH className="text-gray-400 text-xs" />
+                      </button>
+                      {activeListDropdown === list.id && (
+                        <div
+                          className="absolute right-0 mt-1 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <button
+                            onClick={() => {
+                              handleDeleteList(list.id, folder.id);
+                              setActiveListDropdown(null);
+                            }}
+                            className="w-full flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
+                          >
+                            <FaTrash className="mr-2 text-sm" />
+                            Delete List
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
             </div>

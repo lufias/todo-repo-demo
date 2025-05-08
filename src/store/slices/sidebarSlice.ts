@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Folder, List, getAllFolders, getListsByFolder, addFolder as dbAddFolder, deleteFolder as dbDeleteFolder, addList as dbAddList } from '../../services/database';
+import { Folder, List, getAllFolders, getListsByFolder, addFolder as dbAddFolder, deleteFolder as dbDeleteFolder, addList as dbAddList, deleteList as dbDeleteList } from '../../services/database';
 
 interface SidebarState {
   folders: Folder[];
@@ -34,6 +34,11 @@ export const deleteFolder = createAsyncThunk('sidebar/deleteFolder', async (id: 
 
 export const addList = createAsyncThunk('sidebar/addList', async ({ folderId, content }: { folderId: string; content: string }) => {
   return await dbAddList(folderId, content);
+});
+
+export const deleteList = createAsyncThunk('sidebar/deleteList', async (id: string) => {
+  await dbDeleteList(id);
+  return id;
 });
 
 export const loadListsByFolder = createAsyncThunk(
@@ -86,6 +91,9 @@ const sidebarSlice = createSlice({
       })
       .addCase(addList.fulfilled, (state, action) => {
         state.lists.push(action.payload);
+      })
+      .addCase(deleteList.fulfilled, (state, action) => {
+        state.lists = state.lists.filter(list => list.id !== action.payload);
       })
       .addCase(loadListsByFolder.pending, (state) => {
         state.loading = true;
