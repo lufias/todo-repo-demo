@@ -150,8 +150,8 @@ export default function Sidebar() {
         )}
       </div>
       {folders.map((folder) => (
-        <div key={folder.id} className="rounded-lg group">
-          <div className="flex items-center justify-between">
+        <div key={folder.id} className="rounded-lg">
+          <div className="flex items-center justify-between group">
             <button
               onClick={() => toggleFolder(folder.id)}
               className="flex-1 flex items-center justify-between p-2 hover:bg-gray-100 rounded-lg transition-colors"
