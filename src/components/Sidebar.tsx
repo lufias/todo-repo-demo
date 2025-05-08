@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaFolder } from 'react-icons/fa';
 import { FiFolderPlus } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
   loadFolders,
@@ -10,13 +9,12 @@ import {
   addList as addListThunk,
   loadListsByFolder,
   deleteList as deleteListThunk,
+  renameFolder as renameFolderThunk,
+  renameList as renameListThunk,
 } from '../store/slices/sidebarSlice';
 import SidebarFolder from './SidebarFolder';
 
-interface Folder {
-  id: string;
-  name: string;
-}
+
 
 export default function Sidebar() {
   const dispatch = useAppDispatch();
@@ -29,7 +27,6 @@ export default function Sidebar() {
   const [addingListFolderId, setAddingListFolderId] = useState<string | null>(null);
   const [newListName, setNewListName] = useState('');
   const [activeListDropdown, setActiveListDropdown] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(loadFolders());
@@ -83,6 +80,16 @@ export default function Sidebar() {
 
   const handleDeleteList = (listId: string, folderId: string) => {
     dispatch(deleteListThunk(listId)).then(() => {
+      dispatch(loadListsByFolder(folderId));
+    });
+  };
+
+  const handleRenameFolder = (folderId: string, newName: string) => {
+    dispatch(renameFolderThunk({ folderId, newName }));
+  };
+
+  const handleRenameList = (listId: string, folderId: string, newName: string) => {
+    dispatch(renameListThunk({ listId, newName })).then(() => {
       dispatch(loadListsByFolder(folderId));
     });
   };
@@ -177,6 +184,8 @@ export default function Sidebar() {
           activeListDropdown={activeListDropdown}
           setActiveListDropdown={setActiveListDropdown}
           onDeleteList={handleDeleteList}
+          onRenameFolder={handleRenameFolder}
+          onRenameList={handleRenameList}
         />
       ))}
     </div>

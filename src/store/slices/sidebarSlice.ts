@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Folder, List, getAllFolders, getListsByFolder, addFolder as dbAddFolder, deleteFolder as dbDeleteFolder, addList as dbAddList, deleteList as dbDeleteList } from '../../services/database';
+import { Folder, List, getAllFolders, getListsByFolder, addFolder as dbAddFolder, deleteFolder as dbDeleteFolder, addList as dbAddList, deleteList as dbDeleteList, renameFolder as dbRenameFolder, renameList as dbRenameList } from '../../services/database';
 
 interface SidebarState {
   folders: Folder[];
@@ -45,6 +45,24 @@ export const loadListsByFolder = createAsyncThunk(
   'sidebar/loadListsByFolder',
   async (folderId: string) => {
     return await getListsByFolder(folderId);
+  }
+);
+
+export const renameFolder = createAsyncThunk(
+  'sidebar/renameFolder',
+  async ({ folderId, newName }: { folderId: string; newName: string }) => {
+    const folder = await dbRenameFolder(folderId, newName);
+    if (!folder) throw new Error('Folder not found');
+    return folder;
+  }
+);
+
+export const renameList = createAsyncThunk(
+  'sidebar/renameList',
+  async ({ listId, newName }: { listId: string; newName: string }) => {
+    const list = await dbRenameList(listId, newName);
+    if (!list) throw new Error('List not found');
+    return list;
   }
 );
 
@@ -106,6 +124,18 @@ const sidebarSlice = createSlice({
       .addCase(loadListsByFolder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to load lists';
+      })
+      .addCase(renameFolder.fulfilled, (state, action) => {
+        const index = state.folders.findIndex(folder => folder.id === action.payload.id);
+        if (index !== -1) {
+          state.folders[index] = action.payload;
+        }
+      })
+      .addCase(renameList.fulfilled, (state, action) => {
+        const index = state.lists.findIndex(list => list.id === action.payload.id);
+        if (index !== -1) {
+          state.lists[index] = action.payload;
+        }
       });
   },
 });

@@ -42,6 +42,16 @@ export async function addFolder(name: string): Promise<Folder> {
   return folder;
 }
 
+export async function renameFolder(id: string, newName: string): Promise<Folder | null> {
+  const folder = await getFolder(id);
+  if (folder) {
+    folder.name = newName;
+    await localforage.setItem(`folder:${id}`, folder);
+    return folder;
+  }
+  return null;
+}
+
 export async function getFolder(id: string): Promise<Folder | null> {
   return await localforage.getItem<Folder>(`folder:${id}`);
 }
@@ -66,6 +76,16 @@ export async function addList(folderId: string, content: string): Promise<List> 
   };
   await localforage.setItem(`list:${list.id}`, list);
   return list;
+}
+
+export async function renameList(id: string, newContent: string): Promise<List | null> {
+  const list = await getList(id);
+  if (list) {
+    list.content = newContent;
+    await localforage.setItem(`list:${id}`, list);
+    return list;
+  }
+  return null;
 }
 
 export async function getList(id: string): Promise<List | null> {
