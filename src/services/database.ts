@@ -1,0 +1,157 @@
+import localforage from 'localforage';
+
+// Types
+export interface Folder {
+  id: string;
+  name: string;
+}
+
+export interface List {
+  id: string;
+  folderId: string;
+  content: string;
+}
+
+export interface Task {
+  id: string;
+  listId: string;
+  title: string;
+  done: boolean;
+}
+
+// ID Management
+async function getNextId(entity: 'folder' | 'list' | 'task'): Promise<number> {
+  const counterKey = `${entity}_id_counter`;
+  let current = await localforage.getItem<number>(counterKey);
+
+  if (!current) current = 1;
+  else current += 1;
+
+  await localforage.setItem(counterKey, current);
+  return current;
+}
+
+// Folder Operations
+export async function addFolder(name: string): Promise<Folder> {
+  const id = await getNextId('folder');
+  const folder: Folder = {
+    id: `fldr${id}`,
+    name
+  };
+  await localforage.setItem(`folder:${folder.id}`, folder);
+  return folder;
+}
+
+export async function getFolder(id: string): Promise<Folder | null> {
+  return await localforage.getItem<Folder>(`folder:${id}`);
+}
+
+export async function getAllFolders(): Promise<Folder[]> {
+  const folders: Folder[] = [];
+  await localforage.iterate((value, key) => {
+    if (key.startsWith('folder:')) {
+      folders.push(value as Folder);
+    }
+  });
+  return folders;
+}
+
+// List Operations
+export async function addList(folderId: string, content: string): Promise<List> {
+  const id = await getNextId('list');
+  const list: List = {
+    id: `list${id}`,
+    folderId,
+    content
+  };
+  await localforage.setItem(`list:${list.id}`, list);
+  return list;
+}
+
+export async function getList(id: string): Promise<List | null> {
+  return await localforage.getItem<List>(`list:${id}`);
+}
+
+export async function getListsByFolder(folderId: string): Promise<List[]> {
+  const lists: List[] = [];
+  await localforage.iterate((value, key) => {
+    if (key.startsWith('list:')) {
+      const list = value as List;
+      if (list.folderId === folderId) {
+        lists.push(list);
+      }
+    }
+  });
+  return lists;
+}
+
+// Task Operations
+export async function addTask(listId: string, title: string): Promise<Task> {
+  const id = await getNextId('task');
+  const task: Task = {
+    id: `task${id}`,
+    listId,
+    title,
+    done: false
+  };
+  await localforage.setItem(`task:${task.id}`, task);
+  return task;
+}
+
+export async function getTask(id: string): Promise<Task | null> {
+  return await localforage.getItem<Task>(`task:${id}`);
+}
+
+export async function getTasksByList(listId: string): Promise<Task[]> {
+  const tasks: Task[] = [];
+  await localforage.iterate((value, key) => {
+    if (key.startsWith('task:')) {
+      const task = value as Task;
+      if (task.listId === listId) {
+        tasks.push(task);
+      }
+    }
+  });
+  return tasks;
+}
+
+export async function updateTaskStatus(taskId: string, done: boolean): Promise<void> {
+  const task = await getTask(taskId);
+  if (task) {
+    task.done = done;
+    await localforage.setItem(`task:${taskId}`, task);
+  }
+}
+
+// Delete Operations
+export async function deleteFolder(id: string): Promise<void> {
+  // First get all lists in this folder
+  const lists = await getListsByFolder(id);
+  
+  // Delete all tasks in these lists
+  for (const list of lists) {
+    const tasks = await getTasksByList(list.id);
+    for (const task of tasks) {
+      await localforage.removeItem(`task:${task.id}`);
+    }
+    await localforage.removeItem(`list:${list.id}`);
+  }
+  
+  // Finally delete the folder
+  await localforage.removeItem(`folder:${id}`);
+}
+
+export async function deleteList(id: string): Promise<void> {
+  // First delete all tasks in this list
+  const tasks = await getTasksByList(id);
+  for (const task of tasks) {
+    await localforage.removeItem(`task:${task.id}`);
+  }
+  
+  // Then delete the list
+  await localforage.removeItem(`list:${id}`);
+}
+
+export async function deleteTask(id: string): Promise<void> {
+  await localforage.removeItem(`task:${id}`);
+} 
