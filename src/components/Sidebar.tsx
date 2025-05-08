@@ -9,23 +9,8 @@ interface Folder {
   todos: string[];
 }
 
-interface SidebarProps {
-  folders: Folder[];
-  onAddFolder: (name: string) => void;
-  onSelectFolder: (folderId: string) => void;
-  onAddNote: (folderId: string) => void;
-  onDeleteFolder: (folderId: string) => void;
-  onDeleteNote: (folderId: string, noteId: string) => void;
-}
-
-export default function Sidebar({ 
-  folders, 
-  onAddFolder, 
-  onSelectFolder, 
-  onAddNote, 
-  onDeleteFolder,
-  onDeleteNote 
-}: SidebarProps) {
+export default function Sidebar() {
+  const [folders, setFolders] = useState<Folder[]>([]);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [addingFolder, setAddingFolder] = useState(false);
@@ -51,6 +36,37 @@ export default function Sidebar({
     setActiveDropdown(null);
   };
 
+  const handleAddFolder = (name: string) => {
+    const newFolder: Folder = {
+      id: Date.now().toString(),
+      name,
+      todos: [],
+    };
+    setFolders([...folders, newFolder]);
+  };
+
+  const handleSelectFolder = (folderId: string) => {
+    // Handle folder selection - you can implement navigation or state updates here
+    console.log('Selected folder:', folderId);
+  };
+
+  const handleAddNote = (folderId: string) => {
+    // Stub: implement note adding logic
+    console.log('Add note to folder:', folderId);
+  };
+
+  const handleDeleteFolder = (folderId: string) => {
+    setFolders(folders.filter(folder => folder.id !== folderId));
+  };
+
+  const handleDeleteNote = (folderId: string, noteId: string) => {
+    setFolders(folders.map(folder =>
+      folder.id === folderId
+        ? { ...folder, todos: folder.todos.filter(todo => todo !== noteId) }
+        : folder
+    ));
+  };
+
   return (
     <div className="p-2 space-y-1 overflow-y-auto h-[calc(100%-4rem)]" onClick={handleClickOutside}>
       <div className="flex items-center justify-between mb-4">
@@ -67,7 +83,7 @@ export default function Sidebar({
               onChange={e => setNewFolderName(e.target.value)}
               onKeyDown={e => {
                 if (e.key === 'Enter' && newFolderName.trim()) {
-                  onAddFolder(newFolderName.trim());
+                  handleAddFolder(newFolderName.trim());
                   setNewFolderName('');
                   setAddingFolder(false);
                 } else if (e.key === 'Escape') {
@@ -81,7 +97,7 @@ export default function Sidebar({
               title="Confirm"
               onClick={() => {
                 if (newFolderName.trim()) {
-                  onAddFolder(newFolderName.trim());
+                  handleAddFolder(newFolderName.trim());
                   setNewFolderName('');
                   setAddingFolder(false);
                 }
@@ -151,7 +167,7 @@ export default function Sidebar({
                 >
                   <button
                     onClick={() => {
-                      onAddNote(folder.id);
+                      handleAddNote(folder.id);
                       setActiveDropdown(null);
                     }}
                     className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -161,7 +177,7 @@ export default function Sidebar({
                   </button>
                   <button
                     onClick={() => {
-                      onDeleteFolder(folder.id);
+                      handleDeleteFolder(folder.id);
                       setActiveDropdown(null);
                     }}
                     className="w-full flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
@@ -178,13 +194,13 @@ export default function Sidebar({
               {folder.todos.map((todoId) => (
                 <div key={todoId} className="flex items-center justify-between group">
                   <button
-                    onClick={() => onSelectFolder(folder.id)}
+                    onClick={() => handleSelectFolder(folder.id)}
                     className="flex-1 text-left px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors font-normal"
                   >
                     Todo {todoId}
                   </button>
                   <button
-                    onClick={() => onDeleteNote(folder.id, todoId)}
+                    onClick={() => handleDeleteNote(folder.id, todoId)}
                     className="p-1 opacity-0 group-hover:opacity-100 hover:bg-gray-100 rounded transition-all"
                     title="Delete note"
                   >

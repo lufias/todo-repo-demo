@@ -5,24 +5,6 @@ import Sidebar from './Sidebar';
 
 export default function Layout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [folders, setFolders] = useState([
-    { id: '1', name: 'Personal', todos: ['1', '2'] },
-    { id: '2', name: 'Work', todos: ['3', '4'] },
-  ]);
-
-  const handleAddFolder = () => {
-    const newFolder = {
-      id: Date.now().toString(),
-      name: 'New Folder',
-      todos: [],
-    };
-    setFolders([...folders, newFolder]);
-  };
-
-  const handleSelectFolder = (folderId: string) => {
-    // Handle folder selection - you can implement navigation or state updates here
-    console.log('Selected folder:', folderId);
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
@@ -74,11 +56,7 @@ export default function Layout() {
           <div className="hidden md:flex items-center p-4 border-b border-gray-200">
             <span className="font-semibold text-lg text-gray-800">Folders</span>
           </div>
-          <Sidebar
-            folders={folders}
-            onAddFolder={handleAddFolder}
-            onSelectFolder={handleSelectFolder}
-          />
+          <Sidebar />
         </div>
 
         {/* Main Content */}
