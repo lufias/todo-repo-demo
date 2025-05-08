@@ -19,7 +19,7 @@ const barColors = {
   green: 'bg-green-300',
 };
 
-export default function TaskItem({ title, author, status, color = 'blue', excerpt }: TaskItemProps) {
+export default function TaskItem({ title, status, color = 'blue', excerpt }: TaskItemProps) {
   return (
     <div className="flex items-center px-4 py-3 border-b last:border-b-0 bg-white">
       <div className={`w-1 h-8 rounded-full mr-3 ${barColors[color]}`} />
@@ -36,8 +36,7 @@ export default function TaskItem({ title, author, status, color = 'blue', excerp
         </div>
         {excerpt && (
           <div className="text-gray-400 text-sm leading-tight mb-1">{excerpt}</div>
-        )}
-        <div className="text-gray-500 text-sm italic font-normal">By {author}</div>
+        )}        
       </div>
       <button className="mx-2 text-green-600 hover:text-green-800">
         <FaCheck size={18} />

@@ -6,7 +6,18 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        includePaths: ['src/styles'],
+      },
+    },
+    modules: {
+      localsConvention: 'camelCase',
+      generateScopedName: '[name]__[local]___[hash:base64:5]',
     },
   },
 }) 
