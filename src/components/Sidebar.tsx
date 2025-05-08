@@ -1,34 +1,51 @@
 import { useState, useEffect } from 'react';
-import { FaFolder, FaChevronDown, FaChevronRight, FaEllipsisV, FaTrash, FaStickyNote } from 'react-icons/fa';
+import { FaFolder, FaChevronDown, FaChevronRight, FaEllipsisV, FaTrash, FaListUl } from 'react-icons/fa';
 import { FiFolderPlus } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { loadFolders, addFolder as addFolderThunk, deleteFolder as deleteFolderThunk } from '../store/slices/sidebarSlice';
+import {
+  loadFolders,
+  addFolder as addFolderThunk,
+  deleteFolder as deleteFolderThunk,
+  addList as addListThunk,
+  loadListsByFolder,
+} from '../store/slices/sidebarSlice';
 
 interface Folder {
   id: string;
   name: string;
-  todos: string[];
 }
 
 export default function Sidebar() {
   const dispatch = useAppDispatch();
   const folders = useAppSelector(state => state.sidebar.folders);
+  const lists = useAppSelector(state => state.sidebar.lists);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [addingFolder, setAddingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
+  const [addingListFolderId, setAddingListFolderId] = useState<string | null>(null);
+  const [newListName, setNewListName] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(loadFolders());
   }, [dispatch]);
 
+  // Load lists when a folder is expanded
+  useEffect(() => {
+    if (expandedFolders.size === 1) {
+      const folderId = Array.from(expandedFolders)[0];
+      dispatch(loadListsByFolder(folderId));
+    }
+  }, [expandedFolders, dispatch]);
+
   const toggleFolder = (folderId: string) => {
     const newExpanded = new Set(expandedFolders);
     if (newExpanded.has(folderId)) {
       newExpanded.delete(folderId);
     } else {
+      newExpanded.clear(); // Only one expanded at a time for simplicity
       newExpanded.add(folderId);
     }
     setExpandedFolders(newExpanded);
@@ -41,29 +58,22 @@ export default function Sidebar() {
   // Close dropdown when clicking outside
   const handleClickOutside = () => {
     setActiveDropdown(null);
+    setAddingListFolderId(null);
+    setNewListName('');
   };
 
   const handleAddFolder = (name: string) => {
     dispatch(addFolderThunk(name));
   };
 
-  const handleSelectFolder = (folderId: string) => {
-    // Handle folder selection - you can implement navigation or state updates here
-    console.log('Selected folder:', folderId);
-  };
-
-  const handleAddNote = (folderId: string) => {
-    // Stub: implement note adding logic
-    console.log('Add note to folder:', folderId);
-  };
-
   const handleDeleteFolder = (folderId: string) => {
     dispatch(deleteFolderThunk(folderId));
   };
 
-  const handleDeleteNote = (folderId: string, noteId: string) => {
-    // Stub: implement note deletion logic
-    console.log('Delete note', noteId, 'from folder', folderId);
+  const handleAddList = (folderId: string, content: string) => {
+    dispatch(addListThunk({ folderId, content })).then(() => {
+      dispatch(loadListsByFolder(folderId));
+    });
   };
 
   return (
@@ -166,13 +176,13 @@ export default function Sidebar() {
                 >
                   <button
                     onClick={() => {
-                      handleAddNote(folder.id);
+                      setAddingListFolderId(folder.id);
                       setActiveDropdown(null);
                     }}
                     className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    <FaStickyNote className="mr-2 text-green-400 text-sm" />
-                    Add Note
+                    <FaListUl className="mr-2 text-blue-400 text-sm" />
+                    Add List
                   </button>
                   <button
                     onClick={() => {
@@ -188,7 +198,68 @@ export default function Sidebar() {
               )}
             </div>
           </div>
-          {/* Removed notes/lists display for now */}
+          {expandedFolders.has(folder.id) && (
+            <div className="ml-6 mt-1 space-y-1">
+              {/* Add List input */}
+              {addingListFolderId === folder.id && (
+                <div className="flex items-center space-x-2 mb-2">
+                  <input
+                    autoFocus
+                    type="text"
+                    className="border rounded px-2 py-1 text-sm w-28 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    placeholder="List name"
+                    value={newListName}
+                    onChange={e => setNewListName(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && newListName.trim()) {
+                        handleAddList(folder.id, newListName.trim());
+                        setNewListName('');
+                        setAddingListFolderId(null);
+                      } else if (e.key === 'Escape') {
+                        setAddingListFolderId(null);
+                        setNewListName('');
+                      }
+                    }}
+                  />
+                  <button
+                    className="text-green-500 hover:text-green-700"
+                    title="Confirm"
+                    onClick={() => {
+                      if (newListName.trim()) {
+                        handleAddList(folder.id, newListName.trim());
+                        setNewListName('');
+                        setAddingListFolderId(null);
+                      }
+                    }}
+                  >
+                    ✓
+                  </button>
+                  <button
+                    className="text-red-400 hover:text-red-600"
+                    title="Cancel"
+                    onClick={() => {
+                      setAddingListFolderId(null);
+                      setNewListName('');
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+              {/* Show lists for this folder */}
+              {lists
+                .filter(list => list.folderId === folder.id)
+                .map(list => (
+                  <div key={list.id} className="flex items-center justify-between group">
+                    <button
+                      className="flex-1 text-left px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors font-normal"
+                    >
+                      {list.content}
+                    </button>
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
       ))}
     </div>
