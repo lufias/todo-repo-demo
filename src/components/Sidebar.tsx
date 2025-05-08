@@ -171,6 +171,7 @@ export default function Sidebar() {
           onAddListClick={folderId => {
             setAddingListFolderId(folderId);
             setActiveDropdown(null);
+            setExpandedFolders(new Set([folderId]));
           }}
           addingList={addingListFolderId === folder.id}
           newListName={newListName}
