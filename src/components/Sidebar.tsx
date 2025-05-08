@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { FaFolder, FaPlus, FaChevronDown, FaChevronRight, FaEllipsisV, FaTrash, FaStickyNote } from 'react-icons/fa';
+import { FaFolder, FaChevronDown, FaChevronRight, FaEllipsisV, FaTrash, FaStickyNote } from 'react-icons/fa';
+import { FiFolderPlus } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
 interface Folder {
@@ -57,7 +58,7 @@ export default function Sidebar({
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           title="Add new folder"
         >
-          <FaPlus className="text-blue-400 text-base" />
+          <FiFolderPlus className="text-blue-400 text-base" />
         </button>
       </div>
       {folders.map((folder) => (
