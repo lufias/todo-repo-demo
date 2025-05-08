@@ -82,7 +82,7 @@ export default function Layout() {
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto flex items-center justify-center">
+        <main className="flex-1 overflow-auto flex justify-center">
           <div className="container px-4 py-6">
             <Outlet />
           </div>

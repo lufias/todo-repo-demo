@@ -50,7 +50,7 @@ const tasks: Task[] = [];
 
 export default function TaskList() {
   return (
-    <div className="bg-white rounded-xl shadow-xl w-full max-w-5xl p-0 overflow-hidden border border-gray-200 mt-10 mx-auto lg:ml-4 lg:mx-0 virtuoso-container">
+    <div className="bg-white rounded-xl shadow-xl w-full max-w-5xl p-0 overflow-hidden border border-gray-200 mx-auto lg:ml-4 lg:mx-0 virtuoso-container">
       {/* Header */}
       <div className="flex items-center gap-2 px-6 pt-6 pb-2">
         <FaListUl className="text-gray-700 text-xl" />
