@@ -1,5 +1,6 @@
 import { FaEllipsisH, FaTrash, FaEdit } from 'react-icons/fa';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useClickAway } from 'react-use';
 
 interface SidebarListProps {
   list: { id: string; folderId: string; content: string };
@@ -12,6 +13,13 @@ interface SidebarListProps {
 export default function SidebarList({ list, activeDropdown, setActiveDropdown, onDelete, onRename }: SidebarListProps) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newListName, setNewListName] = useState(list.content);
+  const dropdownRef = useRef(null);
+
+  useClickAway(dropdownRef, () => {
+    if (activeDropdown === list.id) {
+      setActiveDropdown(null);
+    }
+  });
 
   const handleRename = () => {
     if (newListName.trim() && newListName !== list.content) {
@@ -64,7 +72,7 @@ export default function SidebarList({ list, activeDropdown, setActiveDropdown, o
           {list.content}
         </button>
       )}
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <button
           onClick={e => {
             e.stopPropagation();

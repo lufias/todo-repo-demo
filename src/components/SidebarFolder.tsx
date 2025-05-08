@@ -1,6 +1,7 @@
 import { FaFolder, FaChevronDown, FaChevronRight, FaEllipsisH, FaTrash, FaListUl, FaEdit } from 'react-icons/fa';
 import SidebarList from './SidebarList.tsx';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useClickAway } from 'react-use';
 
 interface SidebarFolderProps {
   folder: { id: string; name: string };
@@ -45,6 +46,13 @@ export default function SidebarFolder({
 }: SidebarFolderProps) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newFolderName, setNewFolderName] = useState(folder.name);
+  const dropdownRef = useRef(null);
+
+  useClickAway(dropdownRef, () => {
+    if (dropdownOpen) {
+      onDropdown('');
+    }
+  });
 
   const handleRename = () => {
     if (newFolderName.trim() && newFolderName !== folder.name) {
@@ -108,7 +116,7 @@ export default function SidebarFolder({
             )}
           </button>
         )}
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
           <button
             onClick={e => {
               e.stopPropagation();
