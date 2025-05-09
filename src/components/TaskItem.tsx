@@ -1,6 +1,6 @@
 import { FaCheck, FaTrash } from 'react-icons/fa';
 import { useAppDispatch } from '../store/hooks';
-import { updateTaskStatus } from '../store/slices/taskListSlice';
+import { updateTaskStatus, deleteTask } from '../store/slices/taskListSlice';
 
 interface TaskItemProps {
   id: string;
@@ -29,6 +29,10 @@ export default function TaskItem({ id, title, status, color = 'blue', descriptio
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(updateTaskStatus({ taskId: id, done: e.target.checked }));
+  };
+
+  const handleDelete = () => {
+    dispatch(deleteTask(id));
   };
 
   return (
@@ -66,7 +70,11 @@ export default function TaskItem({ id, title, status, color = 'blue', descriptio
           </div>
         )}
       </div>
-      <button className="text-red-500 hover:text-red-700">
+      <button 
+        onClick={handleDelete}
+        className="text-red-500 hover:text-red-700 transition-colors"
+        title="Delete task"
+      >
         <FaTrash size={18} />
       </button>
     </div>
