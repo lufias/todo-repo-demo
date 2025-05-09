@@ -2,10 +2,11 @@ import { FaListUl } from 'react-icons/fa';
 import TaskItem from './TaskItem';
 import { Virtuoso } from 'react-virtuoso';
 import { useAppSelector } from '../store/hooks';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FC } from 'react';
 import AddTaskModal from './AddTaskModal';
 import { useAppDispatch } from '../store/hooks';
 import { loadTasksByList } from '../store/slices/taskListSlice';
+import { Task, List, Folder } from '../services/database';
 
 // const tasks = [
 //   {
@@ -43,29 +44,19 @@ import { loadTasksByList } from '../store/slices/taskListSlice';
 //   // Add more tasks here to test virtual scrolling
 // ];
 
-type Task = {
-  title: string;
-  author: string;
-  status?: string;
-  color: string;
-  description: string;
-  done: boolean;
-  tags: string[];
-};
+interface TaskListProps {}
 
-const tasks: Task[] = [];
-
-export default function TaskList() {
+const TaskList: FC<TaskListProps> = () => {
   const dispatch = useAppDispatch();
-  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
-  const selectedListId = useAppSelector(state => state.sidebar.selectedListId);
-  const lists = useAppSelector(state => state.sidebar.lists);
-  const folders = useAppSelector(state => state.sidebar.folders);
-  const tasks = useAppSelector(state => state.taskList.tasks);
+  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState<boolean>(false);
+  const selectedListId = useAppSelector((state) => state.sidebar.selectedListId);
+  const lists = useAppSelector((state) => state.sidebar.lists) as List[];
+  const folders = useAppSelector((state) => state.sidebar.folders) as Folder[];
+  const tasks = useAppSelector((state) => state.taskList.tasks) as Task[];
   const [loadedListId, setLoadedListId] = useState<string | null>(null);
 
-  const selectedList = lists.find(list => list.id === selectedListId);
-  const selectedFolder = selectedList ? folders.find(folder => folder.id === selectedList.folderId) : null;
+  const selectedList = lists.find((list) => list.id === selectedListId);
+  const selectedFolder = selectedList ? folders.find((folder) => folder.id === selectedList.folderId) : null;
 
   // Only load tasks when a list is explicitly selected
   useEffect(() => {
@@ -92,7 +83,9 @@ export default function TaskList() {
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{selectedList ? selectedList.content : 'List'}</h2>
         </div>
         {selectedFolder && (
-          <div className="text-sm text-gray-400 dark:text-gray-500 font-medium pl-7">in <span className="text-gray-600 dark:text-gray-300 font-semibold">{selectedFolder.name}</span></div>
+          <div className="text-sm text-gray-400 dark:text-gray-500 font-medium pl-7">
+            in <span className="text-gray-600 dark:text-gray-300 font-semibold">{selectedFolder.name}</span>
+          </div>
         )}
       </div>
       {/* Task List with Virtuoso */}
@@ -104,7 +97,7 @@ export default function TaskList() {
         <Virtuoso
           style={{ height: 384 }}
           totalCount={tasks.length}
-          itemContent={index => {
+          itemContent={(index: number) => {
             const task = tasks[index];
             return (
               <TaskItem
@@ -140,4 +133,6 @@ export default function TaskList() {
       />
     </div>
   );
-} 
+};
+
+export default TaskList; 
