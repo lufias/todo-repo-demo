@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FC, ChangeEvent, KeyboardEvent, MouseEvent } from 'react';
 import { FaFolder } from 'react-icons/fa';
 import { FiFolderPlus } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -17,19 +17,23 @@ import { loadTasksByList } from '../store/slices/taskListSlice';
 import SidebarFolder from './SidebarFolder';
 import { Folder, getAllFolders } from '../services/database';
 
-export default function Sidebar() {
+interface SidebarProps {
+  // Add any props if needed in the future
+}
+
+const Sidebar: FC<SidebarProps> = () => {
   const dispatch = useAppDispatch();
   const folders = useAppSelector(state => state.sidebar.folders);
   const lists = useAppSelector(state => state.sidebar.lists);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [addingFolder, setAddingFolder] = useState(false);
-  const [newFolderName, setNewFolderName] = useState('');
+  const [addingFolder, setAddingFolder] = useState<boolean>(false);
+  const [newFolderName, setNewFolderName] = useState<string>('');
   const [addingListFolderId, setAddingListFolderId] = useState<string | null>(null);
-  const [newListName, setNewListName] = useState('');
+  const [newListName, setNewListName] = useState<string>('');
   const [activeListDropdown, setActiveListDropdown] = useState<string | null>(null);
 
-  const disableDelete = folders.length === 1 && lists.length === 1;
+  const disableDelete: boolean = folders.length === 1 && lists.length === 1;
 
   // Robust initialization: check storage directly
   useEffect(() => {
@@ -52,7 +56,7 @@ export default function Sidebar() {
     })();
   }, [dispatch]);
 
-  const toggleFolder = (folderId: string) => {
+  const toggleFolder = (folderId: string): void => {
     const newExpanded = new Set(expandedFolders);
     if (newExpanded.has(folderId)) {
       newExpanded.delete(folderId);
@@ -64,26 +68,26 @@ export default function Sidebar() {
     setExpandedFolders(newExpanded);
   };
 
-  const toggleDropdown = (folderId: string) => {
+  const toggleDropdown = (folderId: string): void => {
     setActiveDropdown(activeDropdown === folderId ? null : folderId);
   };
 
   // Close dropdown when clicking outside
-  const handleClickOutside = () => {
+  const handleClickOutside = (): void => {
     setActiveDropdown(null);
     setAddingListFolderId(null);
     setNewListName('');
   };
 
-  const handleAddFolder = (name: string) => {
+  const handleAddFolder = (name: string): void => {
     dispatch(addFolderThunk(name));
   };
 
-  const handleDeleteFolder = (folderId: string) => {
+  const handleDeleteFolder = (folderId: string): void => {
     dispatch(deleteFolderThunk(folderId));
   };
 
-  const handleAddList = (folderId: string, content: string) => {
+  const handleAddList = (folderId: string, content: string): void => {
     dispatch(addListThunk({ folderId, content })).then(() => {
       // Always reload lists for the currently expanded folder
       if (expandedFolders.size === 1) {
@@ -95,25 +99,45 @@ export default function Sidebar() {
     });
   };
 
-  const handleDeleteList = (listId: string, folderId: string) => {
+  const handleDeleteList = (listId: string, folderId: string): void => {
     dispatch(deleteListThunk(listId)).then(() => {
       dispatch(loadListsByFolder(folderId));
     });
   };
 
-  const handleRenameFolder = (folderId: string, newName: string) => {
+  const handleRenameFolder = (folderId: string, newName: string): void => {
     dispatch(renameFolderThunk({ folderId, newName }));
   };
 
-  const handleRenameList = (listId: string, folderId: string, newName: string) => {
+  const handleRenameList = (listId: string, folderId: string, newName: string): void => {
     dispatch(renameListThunk({ listId, newName })).then(() => {
       dispatch(loadListsByFolder(folderId));
     });
   };
 
-  const handleSelectList = (listId: string) => {
+  const handleSelectList = (listId: string): void => {
     dispatch(setSelectedListId(listId));
     dispatch(loadTasksByList(listId));
+  };
+
+  const handleNewFolderNameChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setNewFolderName(e.target.value);
+  };
+
+  const handleNewFolderKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === 'Enter' && newFolderName.trim()) {
+      handleAddFolder(newFolderName.trim());
+      setNewFolderName('');
+      setAddingFolder(false);
+    } else if (e.key === 'Escape') {
+      setAddingFolder(false);
+      setNewFolderName('');
+    }
+  };
+
+  const handleAddFolderClick = (e: MouseEvent<HTMLButtonElement>): void => {
+    e.stopPropagation();
+    setAddingFolder(true);
   };
 
   return (
@@ -129,17 +153,8 @@ export default function Sidebar() {
               className="border rounded px-2 py-1 text-sm w-28 focus:outline-none focus:ring-2 focus:ring-blue-200"
               placeholder="Folder name"
               value={newFolderName}
-              onChange={e => setNewFolderName(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && newFolderName.trim()) {
-                  handleAddFolder(newFolderName.trim());
-                  setNewFolderName('');
-                  setAddingFolder(false);
-                } else if (e.key === 'Escape') {
-                  setAddingFolder(false);
-                  setNewFolderName('');
-                }
-              }}
+              onChange={handleNewFolderNameChange}
+              onKeyDown={handleNewFolderKeyDown}
             />
             <button
               className="text-green-500 hover:text-green-700"
@@ -167,13 +182,7 @@ export default function Sidebar() {
           </div>
         ) : (
           <button
-            onClick={e => {
-              e.stopPropagation();
-              setAddingFolder(true);
-              setTimeout(() => {
-                // Focus will be handled by autoFocus on input
-              }, 0);
-            }}
+            onClick={handleAddFolderClick}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             title="Add new folder"
           >
@@ -215,4 +224,6 @@ export default function Sidebar() {
       ))}
     </div>
   );
-} 
+};
+
+export default Sidebar; 
