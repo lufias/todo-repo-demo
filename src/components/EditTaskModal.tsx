@@ -60,25 +60,6 @@ const EditTaskModal: FC<EditTaskModalProps> = ({ isOpen, onClose, task }) => {
     setTagInput(parts[parts.length - 1]);
   };
 
-  const addTag = (): void => {
-    const newTag = tagInput.trim();
-    if (!newTag) return;
-
-    if (tags.includes(newTag)) {
-      setTagError('Tag already exists');
-      return;
-    }
-
-    if (tags.length >= 5) {
-      setTagError('Maximum 5 tags allowed');
-      return;
-    }
-
-    setTags([...tags, newTag]);
-    setTagInput('');
-    setTagError('');
-  };
-
   const removeTag = (tagToRemove: string): void => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };

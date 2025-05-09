@@ -1,9 +1,15 @@
 import { FaListUl, FaEllipsisH, FaTrash, FaEdit } from 'react-icons/fa';
-import { useState, useRef } from 'react';
+import { useState, useRef, FC, ChangeEvent, KeyboardEvent, MouseEvent } from 'react';
 import { useClickAway } from 'react-use';
 
+interface List {
+  id: string;
+  folderId: string;
+  content: string;
+}
+
 interface SidebarListProps {
-  list: { id: string; folderId: string; content: string };
+  list: List;
   activeDropdown: string | null;
   setActiveDropdown: (id: string | null) => void;
   onDelete: () => void;
@@ -12,18 +18,17 @@ interface SidebarListProps {
   onSelect: () => void;
 }
 
-export default function SidebarList({
+const SidebarList: FC<SidebarListProps> = ({
   list,
   activeDropdown,
   setActiveDropdown,
   onDelete,
   onRename,
-  isLastList,
   onSelect,
-}: SidebarListProps) {
-  const [isRenaming, setIsRenaming] = useState(false);
-  const [newListName, setNewListName] = useState(list.content);
-  const dropdownRef = useRef(null);
+}) => {
+  const [isRenaming, setIsRenaming] = useState<boolean>(false);
+  const [newListName, setNewListName] = useState<string>(list.content);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useClickAway(dropdownRef, () => {
     if (activeDropdown === list.id) {
@@ -31,11 +36,48 @@ export default function SidebarList({
     }
   });
 
-  const handleRename = () => {
+  const handleRename = (): void => {
     if (newListName.trim() && newListName !== list.content) {
       onRename(newListName.trim());
     }
     setIsRenaming(false);
+  };
+
+  const handleNewListNameChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setNewListName(e.target.value);
+  };
+
+  const handleNewListNameKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === 'Enter') {
+      handleRename();
+    } else if (e.key === 'Escape') {
+      setIsRenaming(false);
+      setNewListName(list.content);
+    }
+  };
+
+  const handleDropdownClick = (e: MouseEvent<HTMLButtonElement>): void => {
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === list.id ? null : list.id);
+  };
+
+  const handleDropdownMenuClick = (e: MouseEvent<HTMLDivElement>): void => {
+    e.stopPropagation();
+  };
+
+  const handleRenameClick = (): void => {
+    setIsRenaming(true);
+    setActiveDropdown(null);
+  };
+
+  const handleDeleteClick = (): void => {
+    onDelete();
+    setActiveDropdown(null);
+  };
+
+  const handleCancelRename = (): void => {
+    setIsRenaming(false);
+    setNewListName(list.content);
   };
 
   return (
@@ -48,15 +90,8 @@ export default function SidebarList({
             type="text"
             className="border rounded px-2 py-1 text-sm w-28 focus:outline-none focus:ring-2 focus:ring-blue-200"
             value={newListName}
-            onChange={e => setNewListName(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                handleRename();
-              } else if (e.key === 'Escape') {
-                setIsRenaming(false);
-                setNewListName(list.content);
-              }
-            }}
+            onChange={handleNewListNameChange}
+            onKeyDown={handleNewListNameKeyDown}
           />
           <button
             className="text-green-500 hover:text-green-700"
@@ -68,10 +103,7 @@ export default function SidebarList({
           <button
             className="text-red-400 hover:text-red-600"
             title="Cancel"
-            onClick={() => {
-              setIsRenaming(false);
-              setNewListName(list.content);
-            }}
+            onClick={handleCancelRename}
           >
             ✕
           </button>
@@ -87,10 +119,7 @@ export default function SidebarList({
       )}
       <div className="relative" ref={dropdownRef}>
         <button
-          onClick={e => {
-            e.stopPropagation();
-            setActiveDropdown(activeDropdown === list.id ? null : list.id);
-          }}
+          onClick={handleDropdownClick}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
           title="List options"
         >
@@ -99,23 +128,17 @@ export default function SidebarList({
         {activeDropdown === list.id && (
           <div
             className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
-            onClick={e => e.stopPropagation()}
+            onClick={handleDropdownMenuClick}
           >
             <button
-              onClick={() => {
-                setIsRenaming(true);
-                setActiveDropdown(null);
-              }}
+              onClick={handleRenameClick}
               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             >
               <FaEdit className="mr-2 text-blue-400 text-sm" />
               Rename List
             </button>
             <button
-              onClick={() => {
-                onDelete();
-                setActiveDropdown(null);
-              }}
+              onClick={handleDeleteClick}
               className="w-full flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
             >
               <FaTrash className="mr-2 text-sm" />
@@ -126,4 +149,6 @@ export default function SidebarList({
       </div>
     </div>
   );
-} 
+};
+
+export default SidebarList; 
