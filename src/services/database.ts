@@ -150,6 +150,16 @@ export async function updateTaskStatus(taskId: string, done: boolean): Promise<v
   }
 }
 
+export async function updateTask(taskId: string, updates: Partial<Task>): Promise<Task | null> {
+  const task = await getTask(taskId);
+  if (task) {
+    const updatedTask = { ...task, ...updates };
+    await localforage.setItem(`task:${taskId}`, updatedTask);
+    return updatedTask;
+  }
+  return null;
+}
+
 // Delete Operations
 export async function deleteFolder(id: string): Promise<void> {
   // First get all lists in this folder

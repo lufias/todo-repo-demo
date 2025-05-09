@@ -1,8 +1,10 @@
-import { FaCheck, FaTrash, FaEye } from 'react-icons/fa';
+import { FaCheck, FaTrash, FaEye, FaEdit } from 'react-icons/fa';
 import { useAppDispatch } from '../store/hooks';
 import { updateTaskStatus, deleteTask } from '../store/slices/taskListSlice';
 import { useState } from 'react';
 import TaskPreviewModal from './TaskPreviewModal';
+import EditTaskModal from './EditTaskModal';
+import { Task } from '../services/database';
 
 interface TaskItemProps {
   id: string;
@@ -29,6 +31,7 @@ const barColors = {
 export default function TaskItem({ id, title, author, status, color, description, done, tags }: TaskItemProps) {
   const dispatch = useAppDispatch();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const handleStatusChange = (newStatus: boolean) => {
     dispatch(updateTaskStatus({ taskId: id, done: newStatus }));
@@ -36,6 +39,15 @@ export default function TaskItem({ id, title, author, status, color, description
 
   const handleDelete = () => {
     dispatch(deleteTask(id));
+  };
+
+  const task: Task = {
+    id,
+    listId: '', // This will be filled by the database
+    title,
+    description,
+    done,
+    tags
   };
 
   return (
@@ -52,7 +64,8 @@ export default function TaskItem({ id, title, author, status, color, description
         >
           {done && <FaCheck className="w-full h-full text-white p-0.5" />}
         </button>
-        <div className="flex-1 min-w-0">
+        
+        <div className="flex-grow">
           <div className="flex items-center gap-2">
             <h3 className={`text-base font-medium truncate ${done ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>
               {title}
@@ -87,7 +100,15 @@ export default function TaskItem({ id, title, author, status, color, description
             </div>
           )}
         </div>
-        <div className="flex-shrink-0 flex items-center gap-2">
+        
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setIsEditOpen(true)}
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label="Edit task"
+          >
+            <FaEdit className="w-4 h-4" />
+          </button>
           <button
             onClick={() => setIsPreviewOpen(true)}
             className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -112,6 +133,12 @@ export default function TaskItem({ id, title, author, status, color, description
         description={description}
         tags={tags}
         done={done}
+      />
+
+      <EditTaskModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        task={task}
       />
     </div>
   );

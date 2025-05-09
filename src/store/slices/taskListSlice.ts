@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Task, getTasksByList, addTask as dbAddTask, updateTaskStatus as dbUpdateTaskStatus, deleteTask as dbDeleteTask } from '../../services/database';
+import { Task, getTasksByList, addTask as dbAddTask, updateTaskStatus as dbUpdateTaskStatus, deleteTask as dbDeleteTask, updateTask as dbUpdateTask } from '../../services/database';
 
 interface TaskListState {
   tasks: Task[];
@@ -43,6 +43,15 @@ export const deleteTask = createAsyncThunk(
   }
 );
 
+export const updateTask = createAsyncThunk(
+  'taskList/updateTask',
+  async ({ taskId, updates }: { taskId: string; updates: Partial<Task> }) => {
+    const updatedTask = await dbUpdateTask(taskId, updates);
+    if (!updatedTask) throw new Error('Task not found');
+    return updatedTask;
+  }
+);
+
 const taskListSlice = createSlice({
   name: 'taskList',
   initialState,
@@ -77,6 +86,12 @@ const taskListSlice = createSlice({
       })
       .addCase(deleteTask.fulfilled, (state, action) => {
         state.tasks = state.tasks.filter(t => t.id !== action.payload);
+      })
+      .addCase(updateTask.fulfilled, (state, action) => {
+        const index = state.tasks.findIndex(t => t.id === action.payload.id);
+        if (index !== -1) {
+          state.tasks[index] = action.payload;
+        }
       });
   },
 });

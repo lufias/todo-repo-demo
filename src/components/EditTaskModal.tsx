@@ -1,0 +1,220 @@
+import { useState, useEffect } from 'react';
+import { useAppDispatch } from '../store/hooks';
+import { updateTask } from '../store/slices/taskListSlice';
+import { FaTimes } from 'react-icons/fa';
+import { Task } from '../services/database';
+
+interface EditTaskModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  task: Task;
+}
+
+export default function EditTaskModal({ isOpen, onClose, task }: EditTaskModalProps) {
+  const dispatch = useAppDispatch();
+  const [title, setTitle] = useState(task.title);
+  const [description, setDescription] = useState(task.description || '');
+  const [tags, setTags] = useState<string[]>(task.tags || []);
+  const [tagInput, setTagInput] = useState('');
+  const [titleError, setTitleError] = useState('');
+  const [tagError, setTagError] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setTitle(task.title);
+      setDescription(task.description || '');
+      setTags(task.tags || []);
+      setTitleError('');
+      setTagError('');
+    }
+  }, [isOpen, task]);
+
+  const validateTitle = (value: string): boolean => {
+    if (!value.trim()) {
+      setTitleError('Title is required');
+      return false;
+    }
+    setTitleError('');
+    return true;
+  };
+
+  const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTagError('');
+    // Split by comma
+    const parts = value.split(',');
+    // All but the last are complete tags
+    const newTags = parts.slice(0, -1).map(tag => tag.trim()).filter(tag => tag);
+    let updatedTags = [...tags];
+    for (const tag of newTags) {
+      if (updatedTags.length >= 5) {
+        setTagError('Maximum 5 tags allowed');
+        break;
+      }
+      if (!updatedTags.includes(tag)) {
+        updatedTags.push(tag);
+      }
+    }
+    setTags(updatedTags);
+    setTagInput(parts[parts.length - 1]);
+  };
+
+  const addTag = () => {
+    const newTag = tagInput.trim();
+    if (!newTag) return;
+
+    if (tags.includes(newTag)) {
+      setTagError('Tag already exists');
+      return;
+    }
+
+    if (tags.length >= 5) {
+      setTagError('Maximum 5 tags allowed');
+      return;
+    }
+
+    setTags([...tags, newTag]);
+    setTagInput('');
+    setTagError('');
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateTitle(title)) return;
+
+    try {
+      await dispatch(updateTask({
+        taskId: task.id,
+        updates: {
+          title: title.trim(),
+          description: description.trim(),
+          tags
+        }
+      })).unwrap();
+      onClose();
+    } catch (error) {
+      console.error('Failed to update task:', error);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
+
+        <div className="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl transition-all w-full max-w-lg mx-auto">
+          <div className="px-6 pt-6 pb-2">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Edit Task</h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+              >
+                <FaTimes className="text-xl" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label htmlFor="taskTitle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  id="taskTitle"
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    if (titleError) validateTitle(e.target.value);
+                  }}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                    titleError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                  placeholder="Enter task title"
+                />
+                {titleError && (
+                  <p className="mt-1 text-sm text-red-500">{titleError}</p>
+                )}
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="taskDescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Description
+                </label>
+                <textarea
+                  id="taskDescription"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                  rows={4}
+                  placeholder="Enter task description"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="taskTags" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Tags (comma separated)
+                </label>
+                <input
+                  type="text"
+                  id="taskTags"
+                  value={tagInput}
+                  onChange={handleTagInputChange}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                    tagError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                  placeholder="Enter tags (e.g., work, urgent)"
+                />
+                {tagError && (
+                  <p className="mt-1 text-sm text-red-500">{tagError}</p>
+                )}
+                {tags.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                      >
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          className="ml-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                        >
+                          <FaTimes className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-4 mt-6">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+} 
