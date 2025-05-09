@@ -66,7 +66,7 @@ const TaskList: FC<TaskListProps> = () => {
     }
   }, [selectedListId, loadedListId, dispatch]);
 
-  if (!selectedListId) {
+  if (!selectedListId || !selectedList) {
     return (
       <div className="flex items-center justify-center h-96 text-gray-400 text-lg">
         No list selected. Pick a list from the sidebar or create a new one.

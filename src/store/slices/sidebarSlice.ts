@@ -117,6 +117,9 @@ const sidebarSlice = createSlice({
         if (state.lists.length === 0) {
           state.lists = [];
         }
+        if (state.selectedListId === action.payload) {
+          state.selectedListId = null;
+        }
       })
       .addCase(loadListsByFolder.pending, (state) => {
         state.loading = true;

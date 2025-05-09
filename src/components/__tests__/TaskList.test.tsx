@@ -146,6 +146,21 @@ describe('TaskList', () => {
     expect(screen.getByText('No list selected. Pick a list from the sidebar or create a new one.')).toBeDefined();
   });
 
+  it('should show message when selected list is deleted', () => {
+    const deletedListState: RootState = {
+      ...mockState,
+      sidebar: {
+        ...mockState.sidebar,
+        selectedListId: 'list-1',
+        lists: [] // Empty lists array simulates the list being deleted
+      }
+    };
+    
+    renderTaskList(deletedListState);
+    
+    expect(screen.getByText('No list selected. Pick a list from the sidebar or create a new one.')).toBeDefined();
+  });
+
   it('should render list and folder information', () => {
     renderTaskList();
     
