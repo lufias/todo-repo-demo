@@ -4,6 +4,9 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    allowedHosts: ['3ggh9m-5173.csb.app']
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
