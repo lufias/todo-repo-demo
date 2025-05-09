@@ -129,21 +129,21 @@ export default function TaskItem({ id, title, status, description, done, tags }:
           {/* Hide on small screens, show only on hover for large screens */}
           <button
             onClick={() => setIsEditOpen(true)}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline-flex"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 hidden sm:inline-flex"
             aria-label="Edit task"
           >
             <FaEdit className="w-4 h-4" />
           </button>
           <button
             onClick={() => setIsPreviewOpen(true)}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline-flex"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 hidden sm:inline-flex"
             aria-label="View task details"
           >
             <FaEye className="w-4 h-4" />
           </button>
           <button
             onClick={handleDelete}
-            className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline-flex"
+            className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 hidden sm:inline-flex"
             aria-label="Delete task"
           >
             <FaTrash className="w-4 h-4" />
