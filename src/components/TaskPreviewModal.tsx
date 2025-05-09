@@ -1,4 +1,5 @@
 import { FaTimes } from 'react-icons/fa';
+import { FC } from 'react';
 
 interface TaskPreviewModalProps {
   isOpen: boolean;
@@ -9,7 +10,14 @@ interface TaskPreviewModalProps {
   done: boolean;
 }
 
-export default function TaskPreviewModal({ isOpen, onClose, title, description, tags, done }: TaskPreviewModalProps) {
+const TaskPreviewModal: FC<TaskPreviewModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  title, 
+  description, 
+  tags, 
+  done 
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -20,6 +28,8 @@ export default function TaskPreviewModal({ isOpen, onClose, title, description, 
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors"
+            aria-label="Close modal"
+            data-testid="close-modal-button"
           >
             <FaTimes className="text-xl" />
           </button>
@@ -45,6 +55,7 @@ export default function TaskPreviewModal({ isOpen, onClose, title, description, 
                 {tags.map((tag, index) => (
                   <span
                     key={index}
+                    data-testid={`tag-${tag}`}
                     className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
                   >
                     {tag}
@@ -66,6 +77,7 @@ export default function TaskPreviewModal({ isOpen, onClose, title, description, 
           <button
             onClick={onClose}
             className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium"
+            data-testid="close-text-button"
           >
             Close
           </button>
@@ -73,4 +85,6 @@ export default function TaskPreviewModal({ isOpen, onClose, title, description, 
       </div>
     </div>
   );
-} 
+};
+
+export default TaskPreviewModal; 
