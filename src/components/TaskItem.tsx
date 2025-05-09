@@ -67,7 +67,7 @@ export default function TaskItem({ id, title, author, status, color, description
         
         <div className="flex-grow">
           <div className="flex items-center gap-2">
-            <h3 className={`text-base font-medium truncate ${done ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>
+            <h3 className={`text-base font-medium truncate break-words whitespace-normal ${done ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>
               {title}
             </h3>
             {status && (
@@ -83,7 +83,7 @@ export default function TaskItem({ id, title, author, status, color, description
             )}
           </div>
           {description && (
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2 break-words whitespace-normal">
               {description}
             </p>
           )}
