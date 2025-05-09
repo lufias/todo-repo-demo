@@ -196,7 +196,7 @@ export async function deleteList(id: string): Promise<void> {
 
   // Reset list_id_counter if no lists remain
   let anyListLeft = false;
-  await localforage.iterate((value, key) => {
+  await localforage.iterate((_, key) => {
     if (key.startsWith('list:')) {
       anyListLeft = true;
       return false; // stop iteration
@@ -212,7 +212,7 @@ export async function deleteTask(id: string): Promise<void> {
 
   // Reset task_id_counter if no tasks remain
   let anyTaskLeft = false;
-  await localforage.iterate((value, key) => {
+  await localforage.iterate((_, key) => {
     if (key.startsWith('task:')) {
       anyTaskLeft = true;
       return false; // stop iteration

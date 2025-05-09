@@ -5,7 +5,7 @@ import { useAppSelector } from '../store/hooks';
 import { useState, useEffect, FC } from 'react';
 import AddTaskModal from './AddTaskModal';
 import { useAppDispatch } from '../store/hooks';
-import { loadTasksByList } from '../store/slices/taskListSlice';
+import { loadTasksByList } from '../store/slices/tasksSlice';
 import { Task, List, Folder } from '../services/database';
 
 // const tasks = [

@@ -83,14 +83,6 @@ const mockFolders: Folder[] = [
 
 // Mock Redux state
 const mockState: RootState = {
-  user: {
-    id: null,
-    name: null,
-    email: null,
-    isAuthenticated: false,
-    loading: false,
-    error: null
-  },
   sidebar: {
     selectedListId: 'list-1',
     selectedFolderId: 'folder-1',
