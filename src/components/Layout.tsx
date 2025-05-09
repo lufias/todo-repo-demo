@@ -68,7 +68,7 @@ export default function Layout() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white shadow-sm">
+      <footer className="bg-white shadow-sm flex justify-center">
         <div className="container px-4 py-4">
           <p className="text-center text-gray-600">© 2024 Todo App. All rights reserved.</p>
         </div>
