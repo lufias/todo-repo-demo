@@ -110,16 +110,17 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, listId }) => {
         <div className="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
           <div className="px-6 pt-6 pb-2">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Add New Task</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white" data-testid="modal-title">Add New Task</h2>
               <button
                 onClick={onClose}
                 className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                data-testid="close-button"
               >
                 <FaTimes className="text-xl" />
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} noValidate>
+            <form onSubmit={handleSubmit} noValidate data-testid="add-task-form">
               <div className="mb-4">
                 <label htmlFor="taskTitle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Task Title <span className="text-red-500">*</span>
@@ -136,9 +137,10 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, listId }) => {
                   placeholder="Enter task title"
                   autoFocus
                   required
+                  data-testid="title-input"
                 />
                 {titleError && (
-                  <p className="mt-1 text-sm text-red-500">{titleError}</p>
+                  <p className="mt-1 text-sm text-red-500" data-testid="title-error">{titleError}</p>
                 )}
               </div>
 
@@ -153,6 +155,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, listId }) => {
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
                   rows={4}
                   placeholder="Enter task description"
+                  data-testid="description-input"
                 />
               </div>
 
@@ -169,16 +172,18 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, listId }) => {
                     tagError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                   placeholder="Enter tags (e.g., work, urgent)"
+                  data-testid="tags-input"
                 />
                 {tagError && (
-                  <p className="mt-1 text-sm text-red-500">{tagError}</p>
+                  <p className="mt-1 text-sm text-red-500" data-testid="tags-error">{tagError}</p>
                 )}
                 {tags.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="mt-2 flex flex-wrap gap-2" data-testid="tags-container">
                     {tags.map((tag, index) => (
                       <span
                         key={index}
                         className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                        data-testid={`tag-${tag}`}
                       >
                         {tag}
                         <button
@@ -186,6 +191,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, listId }) => {
                           onClick={() => removeTag(tag)}
                           className="ml-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                           aria-label={`Remove tag ${tag}`}
+                          data-testid={`remove-tag-${tag}`}
                         >
                           <FaTimes className="w-3 h-3" />
                         </button>
@@ -200,12 +206,14 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, listId }) => {
                   type="button"
                   onClick={onClose}
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                  data-testid="cancel-button"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  data-testid="submit-button"
                 >
                   Add Task
                 </button>

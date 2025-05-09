@@ -20,18 +20,18 @@ const renderModal = (props = {}) => {
 describe('AddTaskModal', () => {
   it('should not render when isOpen is false', () => {
     renderModal({ isOpen: false });
-    expect(screen.queryByText('Add New Task')).toBeNull();
+    expect(screen.queryByTestId('modal-title')).toBeNull();
   });
 
   it('should render modal with all form elements when isOpen is true', () => {
     renderModal();
     
-    expect(screen.getByText('Add New Task')).toBeDefined();
-    expect(screen.getByLabelText(/Task Title/i)).toBeDefined();
-    expect(screen.getByLabelText(/Description/i)).toBeDefined();
-    expect(screen.getByLabelText(/Tags/i)).toBeDefined();
-    expect(screen.getByRole('button', { name: /Add Task/i })).toBeDefined();
-    expect(screen.getByRole('button', { name: /Cancel/i })).toBeDefined();
+    expect(screen.getByTestId('modal-title')).toBeDefined();
+    expect(screen.getByTestId('title-input')).toBeDefined();
+    expect(screen.getByTestId('description-input')).toBeDefined();
+    expect(screen.getByTestId('tags-input')).toBeDefined();
+    expect(screen.getByTestId('submit-button')).toBeDefined();
+    expect(screen.getByTestId('cancel-button')).toBeDefined();
   });
 
   it('should show error when submitting empty title', async () => {
@@ -39,11 +39,11 @@ describe('AddTaskModal', () => {
     renderModal();
     
     await act(async () => {
-      const submitButton = screen.getByRole('button', { name: /Add Task/i });
+      const submitButton = screen.getByTestId('submit-button');
       await user.click(submitButton);
     });
 
-    expect(await screen.findByText('Title is required')).toBeDefined();
+    expect(await screen.findByTestId('title-error')).toBeDefined();
   });
 
   it('should handle tag input correctly', async () => {
@@ -51,11 +51,11 @@ describe('AddTaskModal', () => {
     renderModal();
     
     await act(async () => {
-      const tagInput = screen.getByLabelText(/Tags/i);
+      const tagInput = screen.getByTestId('tags-input');
       await user.type(tagInput, 'work,');
     });
     
-    expect(screen.getByText('work')).toBeDefined();
+    expect(screen.getByTestId('tag-work')).toBeDefined();
   });
 
   it('should prevent adding more than 5 tags', async () => {
@@ -63,7 +63,7 @@ describe('AddTaskModal', () => {
     renderModal();
     
     await act(async () => {
-      const tagInput = screen.getByLabelText(/Tags/i);
+      const tagInput = screen.getByTestId('tags-input');
       
       // Add 5 tags
       for (let i = 1; i <= 5; i++) {
@@ -74,8 +74,8 @@ describe('AddTaskModal', () => {
       await user.type(tagInput, 'tag6,');
     });
     
-    expect(screen.getByText('Maximum 5 tags allowed')).toBeDefined();
-    expect(screen.queryByText('tag6')).toBeNull();
+    expect(screen.getByTestId('tags-error')).toBeDefined();
+    expect(screen.queryByTestId('tag-tag6')).toBeNull();
   });
 
   it('should prevent adding duplicate tags', async () => {
@@ -83,12 +83,12 @@ describe('AddTaskModal', () => {
     renderModal();
     
     await act(async () => {
-      const tagInput = screen.getByLabelText(/Tags/i);
+      const tagInput = screen.getByTestId('tags-input');
       await user.type(tagInput, 'work,');
       await user.type(tagInput, 'work,');
     });
     
-    expect(screen.getByText('Tag already exists')).toBeDefined();
+    expect(screen.getByTestId('tags-error')).toBeDefined();
   });
 
   it('should remove tag when clicking remove button', async () => {
@@ -96,16 +96,16 @@ describe('AddTaskModal', () => {
     renderModal();
     
     await act(async () => {
-      const tagInput = screen.getByLabelText(/Tags/i);
+      const tagInput = screen.getByTestId('tags-input');
       await user.type(tagInput, 'work,');
     });
     
     await act(async () => {
-      const removeButton = screen.getByRole('button', { name: /Remove tag work/i });
+      const removeButton = screen.getByTestId('remove-tag-work');
       await user.click(removeButton);
     });
     
-    expect(screen.queryByText('work')).toBeNull();
+    expect(screen.queryByTestId('tag-work')).toBeNull();
   });
 
   it('should call onClose when clicking cancel button', async () => {
@@ -114,7 +114,7 @@ describe('AddTaskModal', () => {
     renderModal({ onClose });
     
     await act(async () => {
-      const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+      const cancelButton = screen.getByTestId('cancel-button');
       await user.click(cancelButton);
     });
     
@@ -141,12 +141,12 @@ describe('AddTaskModal', () => {
     
     await act(async () => {
       // Fill in the form
-      await user.type(screen.getByLabelText(/Task Title/i), 'Test Task');
-      await user.type(screen.getByLabelText(/Description/i), 'Test Description');
-      await user.type(screen.getByLabelText(/Tags/i), 'work,urgent,');
+      await user.type(screen.getByTestId('title-input'), 'Test Task');
+      await user.type(screen.getByTestId('description-input'), 'Test Description');
+      await user.type(screen.getByTestId('tags-input'), 'work,urgent,');
       
       // Submit the form
-      const submitButton = screen.getByRole('button', { name: /Add Task/i });
+      const submitButton = screen.getByTestId('submit-button');
       await user.click(submitButton);
     });
     
