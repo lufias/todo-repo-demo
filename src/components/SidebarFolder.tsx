@@ -1,12 +1,23 @@
 import { FaFolder, FaChevronDown, FaChevronRight, FaEllipsisH, FaTrash, FaListUl, FaEdit } from 'react-icons/fa';
-import SidebarList from './SidebarList.tsx';
-import { useState, useRef } from 'react';
+import SidebarList from './SidebarList';
+import { useState, useRef, FC, ChangeEvent, KeyboardEvent, MouseEvent } from 'react';
 import { useClickAway } from 'react-use';
 import { useAppSelector } from '../store/hooks';
 
+interface Folder {
+  id: string;
+  name: string;
+}
+
+interface List {
+  id: string;
+  folderId: string;
+  content: string;
+}
+
 interface SidebarFolderProps {
-  folder: { id: string; name: string };
-  lists: { id: string; folderId: string; content: string }[];
+  folder: Folder;
+  lists: List[];
   expanded: boolean;
   onToggle: (folderId: string) => void;
   onDropdown: (folderId: string) => void;
@@ -27,7 +38,7 @@ interface SidebarFolderProps {
   onSelectList: (listId: string) => void;
 }
 
-export default function SidebarFolder({
+const SidebarFolder: FC<SidebarFolderProps> = ({
   folder,
   lists,
   expanded,
@@ -45,14 +56,12 @@ export default function SidebarFolder({
   setActiveListDropdown,
   onDeleteList,
   onRenameFolder,
-  onRenameList,
-  disableDelete,
+  onRenameList,  
   onSelectList,
-}: SidebarFolderProps) {
-  const [isRenaming, setIsRenaming] = useState(false);
-  const [newFolderName, setNewFolderName] = useState(folder.name);
-  const dropdownRef = useRef(null);
-  const allFolders = useAppSelector(state => state.sidebar.folders);
+}) => {
+  const [isRenaming, setIsRenaming] = useState<boolean>(false);
+  const [newFolderName, setNewFolderName] = useState<string>(folder.name);
+  const dropdownRef = useRef<HTMLDivElement>(null);  
   const allLists = useAppSelector(state => state.sidebar.lists);
   const folderLists = lists.filter(list => list.folderId === folder.id);
 
@@ -62,19 +71,76 @@ export default function SidebarFolder({
     }
   });
 
-  const handleRename = () => {
+  const handleRename = (): void => {
     if (newFolderName.trim() && newFolderName !== folder.name) {
       onRenameFolder(folder.id, newFolderName.trim());
     }
     setIsRenaming(false);
   };
 
-  const isLastFolder = allFolders.length === 1;
-  const listsInThisFolder = allLists.filter(l => l.folderId === folder.id);
-  const wouldRemoveLastList = allLists.length === listsInThisFolder.length;
-  const disableFolderDelete = isLastFolder || wouldRemoveLastList;
+  const handleNewFolderNameChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setNewFolderName(e.target.value);
+  };
 
-  const totalListsCount = allLists.length;
+  const handleNewFolderNameKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === 'Enter') {
+      handleRename();
+    } else if (e.key === 'Escape') {
+      setIsRenaming(false);
+      setNewFolderName(folder.name);
+    }
+  };
+
+  const handleNewListNameChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setNewListName(e.target.value);
+  };
+
+  const handleNewListNameKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === 'Enter' && newListName.trim()) {
+      onAddList(folder.id, newListName.trim());
+    } else if (e.key === 'Escape') {
+      onCancelAddList();
+    }
+  };
+
+  const handleDropdownClick = (e: MouseEvent<HTMLButtonElement>): void => {
+    e.stopPropagation();
+    onDropdown(folder.id);
+  };
+
+  const handleDropdownMenuClick = (e: MouseEvent<HTMLDivElement>): void => {
+    e.stopPropagation();
+  };
+
+  const handleRenameClick = (): void => {
+    setIsRenaming(true);
+    onDropdown(folder.id);
+  };
+
+  const handleAddListClick = (): void => {
+    onAddListClick(folder.id);
+  };
+
+  const handleDeleteFolderClick = (): void => {
+    onDeleteFolder(folder.id);
+  };
+
+  const handleConfirmRenameClick = (): void => {
+    handleRename();
+  };
+
+  const handleCancelRenameClick = (): void => {
+    setIsRenaming(false);
+    setNewFolderName(folder.name);
+  };
+
+  const handleConfirmAddListClick = (): void => {
+    if (newListName.trim()) {
+      onAddList(folder.id, newListName.trim());
+    }
+  };
+
+  const totalListsCount: number = allLists.length;
 
   return (
     <div className="rounded-lg">
@@ -87,30 +153,20 @@ export default function SidebarFolder({
               type="text"
               className="border rounded px-2 py-1 text-sm w-28 focus:outline-none focus:ring-2 focus:ring-blue-200"
               value={newFolderName}
-              onChange={e => setNewFolderName(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  handleRename();
-                } else if (e.key === 'Escape') {
-                  setIsRenaming(false);
-                  setNewFolderName(folder.name);
-                }
-              }}
+              onChange={handleNewFolderNameChange}
+              onKeyDown={handleNewFolderNameKeyDown}
             />
             <button
               className="text-green-500 hover:text-green-700"
               title="Confirm"
-              onClick={handleRename}
+              onClick={handleConfirmRenameClick}
             >
               ✓
             </button>
             <button
               className="text-red-400 hover:text-red-600"
               title="Cancel"
-              onClick={() => {
-                setIsRenaming(false);
-                setNewFolderName(folder.name);
-              }}
+              onClick={handleCancelRenameClick}
             >
               ✕
             </button>
@@ -133,10 +189,7 @@ export default function SidebarFolder({
         )}
         <div className="relative" ref={dropdownRef}>
           <button
-            onClick={e => {
-              e.stopPropagation();
-              onDropdown(folder.id);
-            }}
+            onClick={handleDropdownClick}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors ml-2 opacity-0 group-hover:opacity-100"
             title="Folder options"
           >
@@ -145,31 +198,24 @@ export default function SidebarFolder({
           {dropdownOpen && (
             <div
               className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
-              onClick={e => e.stopPropagation()}
+              onClick={handleDropdownMenuClick}
             >
               <button
-                onClick={() => {
-                  setIsRenaming(true);
-                  onDropdown(folder.id);
-                }}
+                onClick={handleRenameClick}
                 className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 <FaEdit className="mr-2 text-blue-400 text-sm" />
                 Rename Folder
               </button>
               <button
-                onClick={() => {
-                  onAddListClick(folder.id);
-                }}
+                onClick={handleAddListClick}
                 className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 <FaListUl className="mr-2 text-blue-400 text-sm" />
                 Add List
               </button>
               <button
-                onClick={() => {
-                  onDeleteFolder(folder.id);
-                }}
+                onClick={handleDeleteFolderClick}
                 className="w-full flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
               >
                 <FaTrash className="mr-2 text-sm" />
@@ -189,23 +235,13 @@ export default function SidebarFolder({
                 className="border rounded px-2 py-1 text-sm w-28 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 placeholder="List name"
                 value={newListName}
-                onChange={e => setNewListName(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && newListName.trim()) {
-                    onAddList(folder.id, newListName.trim());
-                  } else if (e.key === 'Escape') {
-                    onCancelAddList();
-                  }
-                }}
+                onChange={handleNewListNameChange}
+                onKeyDown={handleNewListNameKeyDown}
               />
               <button
                 className="text-green-500 hover:text-green-700"
                 title="Confirm"
-                onClick={() => {
-                  if (newListName.trim()) {
-                    onAddList(folder.id, newListName.trim());
-                  }
-                }}
+                onClick={handleConfirmAddListClick}
               >
                 ✓
               </button>
@@ -219,9 +255,9 @@ export default function SidebarFolder({
             </div>
           )}
           {folderLists.map(list => {
-            const isOnlyListInSystem = totalListsCount === 1;
-            const isOnlyListInFolder = folderLists.length === 1;
-            const disableListDelete = isOnlyListInSystem || isOnlyListInFolder;
+            const isOnlyListInSystem: boolean = totalListsCount === 1;
+            const isOnlyListInFolder: boolean = folderLists.length === 1;
+            const disableListDelete: boolean = isOnlyListInSystem || isOnlyListInFolder;
             return (
               <SidebarList
                 key={list.id}
@@ -239,4 +275,6 @@ export default function SidebarFolder({
       )}
     </div>
   );
-} 
+};
+
+export default SidebarFolder; 
