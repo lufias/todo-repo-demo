@@ -72,8 +72,6 @@ const sidebarSlice = createSlice({
   reducers: {
     setSelectedFolderId(state, action: PayloadAction<string | null>) {
       state.selectedFolderId = action.payload;
-      state.selectedListId = null; // Reset selected list when folder changes
-      state.lists = [];
     },
     setSelectedListId(state, action: PayloadAction<string | null>) {
       state.selectedListId = action.payload;
@@ -118,7 +116,11 @@ const sidebarSlice = createSlice({
         state.error = null;
       })
       .addCase(loadListsByFolder.fulfilled, (state, action) => {
-        state.lists = action.payload;
+        const folderId = action.meta.arg;
+        state.lists = [
+          ...state.lists.filter(list => list.folderId !== folderId),
+          ...action.payload
+        ];
         state.loading = false;
       })
       .addCase(loadListsByFolder.rejected, (state, action) => {

@@ -2,6 +2,10 @@ import { FaListUl } from 'react-icons/fa';
 import TaskItem from './TaskItem';
 import { Virtuoso } from 'react-virtuoso';
 import { useAppSelector } from '../store/hooks';
+import { useState, useEffect } from 'react';
+import AddTaskModal from './AddTaskModal';
+import { useAppDispatch } from '../store/hooks';
+import { loadTasksByList } from '../store/slices/taskListSlice';
 
 // const tasks = [
 //   {
@@ -50,13 +54,24 @@ type Task = {
 const tasks: Task[] = [];
 
 export default function TaskList() {
+  const dispatch = useAppDispatch();
+  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const selectedListId = useAppSelector(state => state.sidebar.selectedListId);
   const lists = useAppSelector(state => state.sidebar.lists);
   const folders = useAppSelector(state => state.sidebar.folders);
   const tasks = useAppSelector(state => state.taskList.tasks);
+  const [loadedListId, setLoadedListId] = useState<string | null>(null);
 
   const selectedList = lists.find(list => list.id === selectedListId);
   const selectedFolder = selectedList ? folders.find(folder => folder.id === selectedList.folderId) : null;
+
+  // Only load tasks when a list is explicitly selected
+  useEffect(() => {
+    if (selectedListId && selectedListId !== loadedListId) {
+      dispatch(loadTasksByList(selectedListId));
+      setLoadedListId(selectedListId);
+    }
+  }, [selectedListId, loadedListId, dispatch]);
 
   if (!selectedListId) {
     return (
@@ -96,7 +111,7 @@ export default function TaskList() {
                 author=""
                 status={undefined}
                 color="blue"
-                description={undefined}
+                description={task.description}
               />
             );
           }}
@@ -104,9 +119,20 @@ export default function TaskList() {
       )}
       {/* Footer */}
       <div className="flex justify-end gap-4 px-6 py-4 bg-white border-t">
-        <button className="text-blue-600 hover:underline font-medium">Cancel</button>
-        <button className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700 transition">Add Task</button>
+        <button 
+          onClick={() => setIsAddTaskModalOpen(true)}
+          className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700 transition"
+        >
+          Add Task
+        </button>
       </div>
+
+      {/* Add Task Modal */}
+      <AddTaskModal
+        isOpen={isAddTaskModalOpen}
+        onClose={() => setIsAddTaskModalOpen(false)}
+        listId={selectedListId}
+      />
     </div>
   );
 } 

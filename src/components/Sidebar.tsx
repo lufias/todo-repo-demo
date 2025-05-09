@@ -52,21 +52,14 @@ export default function Sidebar() {
     })();
   }, [dispatch]);
 
-  // Load lists when a folder is expanded
-  useEffect(() => {
-    if (expandedFolders.size === 1) {
-      const folderId = Array.from(expandedFolders)[0];
-      dispatch(loadListsByFolder(folderId));
-    }
-  }, [expandedFolders, dispatch]);
-
   const toggleFolder = (folderId: string) => {
     const newExpanded = new Set(expandedFolders);
     if (newExpanded.has(folderId)) {
       newExpanded.delete(folderId);
     } else {
-      newExpanded.clear(); // Only one expanded at a time for simplicity
       newExpanded.add(folderId);
+      // Load lists for the expanded folder
+      dispatch(loadListsByFolder(folderId));
     }
     setExpandedFolders(newExpanded);
   };

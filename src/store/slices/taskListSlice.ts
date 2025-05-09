@@ -22,8 +22,8 @@ export const loadTasksByList = createAsyncThunk(
 
 export const addTask = createAsyncThunk(
   'taskList/addTask',
-  async ({ listId, title }: { listId: string; title: string }) => {
-    return await dbAddTask(listId, title);
+  async ({ listId, title, description }: { listId: string; title: string; description?: string }) => {
+    return await dbAddTask(listId, title, description);
   }
 );
 

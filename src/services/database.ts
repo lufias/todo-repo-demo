@@ -19,6 +19,7 @@ export interface Task {
   id: string;
   listId: string;
   title: string;
+  description?: string;
   done: boolean;
 }
 
@@ -109,12 +110,13 @@ export async function getListsByFolder(folderId: string): Promise<List[]> {
 }
 
 // Task Operations
-export async function addTask(listId: string, title: string): Promise<Task> {
+export async function addTask(listId: string, title: string, description?: string): Promise<Task> {
   const id = await getNextId('task');
   const task: Task = {
     id: `task${id}`,
     listId,
     title,
+    description,
     done: false
   };
   await localforage.setItem(`task:${task.id}`, task);
