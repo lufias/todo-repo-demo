@@ -1,10 +1,11 @@
 import { FaCheck, FaTrash, FaEye, FaEdit } from 'react-icons/fa';
 import { useAppDispatch } from '../store/hooks';
 import { updateTaskStatus, deleteTask } from '../store/slices/taskListSlice';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import TaskPreviewModal from './TaskPreviewModal';
 import EditTaskModal from './EditTaskModal';
 import { Task } from '../services/database';
+import { useClickAway } from 'react-use';
 
 interface TaskItemProps {
   id: string;
@@ -32,6 +33,14 @@ export default function TaskItem({ id, title, author, status, color, description
   const dispatch = useAppDispatch();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const longPressTimeout = useRef<NodeJS.Timeout | null>(null);
+  const touchMoved = useRef(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useClickAway(dropdownRef, () => {
+    if (isDropdownOpen) setIsDropdownOpen(false);
+  });
 
   const handleStatusChange = (newStatus: boolean) => {
     dispatch(updateTaskStatus({ taskId: id, done: newStatus }));
@@ -50,8 +59,34 @@ export default function TaskItem({ id, title, author, status, color, description
     tags
   };
 
+  // Long press handlers for mobile
+  const handleTouchStart = () => {
+    touchMoved.current = false;
+    longPressTimeout.current = setTimeout(() => {
+      setIsDropdownOpen(true);
+    }, 500); // 500ms for long press
+  };
+  const handleTouchEnd = () => {
+    if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
+  };
+  const handleTouchMove = () => {
+    touchMoved.current = true;
+    if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
+  };
+  const handleDropdownAction = (action: 'edit' | 'view' | 'delete') => {
+    setIsDropdownOpen(false);
+    if (action === 'edit') setIsEditOpen(true);
+    if (action === 'view') setIsPreviewOpen(true);
+    if (action === 'delete') handleDelete();
+  };
+
   return (
-    <div className="group relative px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+    <div
+      className="group relative px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchMove={handleTouchMove}
+    >
       <div className="flex items-start gap-4">
         <button
           onClick={() => handleStatusChange(!done)}
@@ -102,28 +137,52 @@ export default function TaskItem({ id, title, author, status, color, description
         </div>
         
         <div className="flex items-center gap-1">
+          {/* Hide on small screens */}
           <button
             onClick={() => setIsEditOpen(true)}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors hidden sm:inline-flex"
             aria-label="Edit task"
           >
             <FaEdit className="w-4 h-4" />
           </button>
           <button
             onClick={() => setIsPreviewOpen(true)}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors hidden sm:inline-flex"
             aria-label="View task details"
           >
             <FaEye className="w-4 h-4" />
           </button>
           <button
             onClick={handleDelete}
-            className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors hidden sm:inline-flex"
             aria-label="Delete task"
           >
             <FaTrash className="w-4 h-4" />
           </button>
         </div>
+        {/* Dropdown for mobile actions */}
+        {isDropdownOpen && (
+          <div ref={dropdownRef} className="absolute right-4 top-12 z-20 bg-white dark:bg-gray-800 rounded shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col w-32 sm:hidden">
+            <button
+              onClick={() => handleDropdownAction('edit')}
+              className="px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+            >
+              <FaEdit className="inline mr-2" /> Edit
+            </button>
+            <button
+              onClick={() => handleDropdownAction('view')}
+              className="px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+            >
+              <FaEye className="inline mr-2" /> View
+            </button>
+            <button
+              onClick={() => handleDropdownAction('delete')}
+              className="px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400"
+            >
+              <FaTrash className="inline mr-2" /> Delete
+            </button>
+          </div>
+        )}
       </div>
 
       <TaskPreviewModal
