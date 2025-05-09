@@ -51,7 +51,12 @@ const tasks: Task[] = [];
 
 export default function TaskList() {
   const selectedListId = useAppSelector(state => state.sidebar.selectedListId);
+  const lists = useAppSelector(state => state.sidebar.lists);
+  const folders = useAppSelector(state => state.sidebar.folders);
   const tasks = useAppSelector(state => state.taskList.tasks);
+
+  const selectedList = lists.find(list => list.id === selectedListId);
+  const selectedFolder = selectedList ? folders.find(folder => folder.id === selectedList.folderId) : null;
 
   if (!selectedListId) {
     return (
@@ -64,9 +69,14 @@ export default function TaskList() {
   return (
     <div className="bg-white rounded-xl shadow-xl w-full max-w-5xl p-0 overflow-hidden border border-gray-200 mx-auto lg:ml-4 lg:mx-0 virtuoso-container">
       {/* Header */}
-      <div className="flex items-center gap-2 px-6 pt-6 pb-2">
-        <FaListUl className="text-gray-700 text-xl" />
-        <h2 className="text-lg font-semibold text-gray-800">Task Lists</h2>
+      <div className="px-6 pt-6 pb-2">
+        <div className="flex items-center gap-2 mb-1">
+          <FaListUl className="text-gray-700 text-xl" />
+          <h2 className="text-lg font-semibold text-gray-800">{selectedList ? selectedList.content : 'List'}</h2>
+        </div>
+        {selectedFolder && (
+          <div className="text-sm text-gray-400 font-medium pl-7">in <span className="text-gray-600 font-semibold">{selectedFolder.name}</span></div>
+        )}
       </div>
       {/* Task List with Virtuoso */}
       {tasks.length === 0 ? (
@@ -83,10 +93,10 @@ export default function TaskList() {
               <TaskItem
                 key={task.id || index}
                 title={task.title}
-                status={task.status as any}
-                color={task.color as any}
-                description={task.description}
-                author={task.author}
+                author=""
+                status={undefined}
+                color="blue"
+                description={undefined}
               />
             );
           }}
