@@ -9,7 +9,8 @@ vi.mock('react-icons/fa', () => ({
   FaCheck: () => <span data-testid="fa-check">Check</span>,
   FaTrash: () => <span data-testid="fa-trash">Delete</span>,
   FaEye: () => <span data-testid="fa-eye">View</span>,
-  FaEdit: () => <span data-testid="fa-edit">Edit</span>
+  FaEdit: () => <span data-testid="fa-edit">Edit</span>,
+  FaEllipsisV: () => <span data-testid="fa-ellipsis-v">More</span>
 }));
 
 // Mock the modals
@@ -152,5 +153,38 @@ describe('TaskItem', () => {
       await user.click(screen.getByRole('button', { name: /delete task/i }));
     });
     expect(mockDispatch).toHaveBeenCalled();
+  });
+
+  it('should show kebab menu and dropdown on mobile', async () => {
+    const user = userEvent.setup();
+    renderTaskItem();
+
+    // Verify kebab menu is present
+    const kebabButton = screen.getByRole('button', { name: /task options/i });
+    expect(kebabButton).toBeDefined();
+
+    // Click kebab menu to open dropdown
+    await act(async () => {
+      await user.click(kebabButton);
+    });
+
+    // Verify dropdown menu items are present
+    expect(screen.getByTestId('dropdown-edit')).toBeDefined();
+    expect(screen.getByTestId('dropdown-view')).toBeDefined();
+    expect(screen.getByTestId('dropdown-delete')).toBeDefined();
+
+    // Test dropdown actions
+    await act(async () => {
+      await user.click(screen.getByTestId('dropdown-edit'));
+    });
+    expect(screen.getByTestId('edit-modal')).toBeDefined();
+
+    // Close edit modal
+    await act(async () => {
+      await user.click(screen.getByText('Close Edit'));
+    });
+
+    // Verify dropdown is closed after action
+    expect(screen.queryByTestId('dropdown-edit')).toBeNull();
   });
 }); 

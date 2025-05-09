@@ -1,4 +1,4 @@
-import { FaCheck, FaTrash, FaEye, FaEdit } from 'react-icons/fa';
+import { FaCheck, FaTrash, FaEye, FaEdit, FaEllipsisV } from 'react-icons/fa';
 import { useAppDispatch } from '../store/hooks';
 import { updateTaskStatus, deleteTask } from '../store/slices/tasksSlice';
 import { useState, useRef, FC } from 'react';
@@ -33,8 +33,6 @@ const TaskItem: FC<TaskItemProps> = ({
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-  const longPressTimeout = useRef<NodeJS.Timeout | null>(null);
-  const touchMoved = useRef<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useClickAway(dropdownRef, () => {
@@ -56,23 +54,6 @@ const TaskItem: FC<TaskItemProps> = ({
     description,
     done,
     tags
-  };
-
-  // Long press handlers for mobile
-  const handleTouchStart = (): void => {
-    touchMoved.current = false;
-    longPressTimeout.current = setTimeout(() => {
-      setIsDropdownOpen(true);
-    }, 500); // 500ms for long press
-  };
-
-  const handleTouchEnd = (): void => {
-    if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
-  };
-
-  const handleTouchMove = (): void => {
-    touchMoved.current = true;
-    if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
   };
 
   const handleDropdownAction = (action: 'edit' | 'view' | 'delete'): void => {
@@ -107,12 +88,7 @@ const TaskItem: FC<TaskItemProps> = ({
   };
 
   return (
-    <div
-      className="group relative px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onTouchMove={handleTouchMove}
-    >
+    <div className="group relative px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
       <div className="flex items-start gap-4">
         <button
           onClick={() => handleStatusChange(!done)}
@@ -163,6 +139,7 @@ const TaskItem: FC<TaskItemProps> = ({
         </div>
         
         <div className="flex items-center gap-1">
+          {/* Desktop action buttons */}
           <button
             onClick={handleEditClick}
             className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 hidden sm:inline-flex"
@@ -184,25 +161,37 @@ const TaskItem: FC<TaskItemProps> = ({
           >
             <FaTrash className="w-4 h-4" />
           </button>
+
+          {/* Mobile three dots menu */}
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors sm:hidden"
+            aria-label="Task options"
+          >
+            <FaEllipsisV className="w-4 h-4" />
+          </button>
         </div>
-        {/* Dropdown for mobile actions */}
+        {/* Dropdown menu - only visible on mobile */}
         {isDropdownOpen && (
           <div ref={dropdownRef} className="absolute right-4 top-12 z-20 bg-white dark:bg-gray-800 rounded shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col w-32 sm:hidden">
             <button
               onClick={() => handleDropdownAction('edit')}
               className="px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+              data-testid="dropdown-edit"
             >
               <FaEdit className="inline mr-2" /> Edit
             </button>
             <button
               onClick={() => handleDropdownAction('view')}
               className="px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+              data-testid="dropdown-view"
             >
               <FaEye className="inline mr-2" /> View
             </button>
             <button
               onClick={() => handleDropdownAction('delete')}
               className="px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400"
+              data-testid="dropdown-delete"
             >
               <FaTrash className="inline mr-2" /> Delete
             </button>
