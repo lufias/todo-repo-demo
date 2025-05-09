@@ -49,6 +49,8 @@ type Task = {
   status?: string;
   color: string;
   description: string;
+  done: boolean;
+  tags: string[];
 };
 
 const tasks: Task[] = [];
@@ -107,11 +109,14 @@ export default function TaskList() {
             return (
               <TaskItem
                 key={task.id || index}
+                id={task.id}
                 title={task.title}
                 author=""
                 status={undefined}
                 color="blue"
                 description={task.description}
+                done={task.done}
+                tags={task.tags}
               />
             );
           }}
