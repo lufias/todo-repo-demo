@@ -70,11 +70,9 @@ const Layout: FC<LayoutProps> = () => {
             >
               <FaBars />
             </button>
-            <span className="font-semibold text-lg text-gray-800 dark:text-white">Folders</span>
           </div>
           {/* On desktop, just show the label */}
           <div className="hidden md:flex items-center p-4 border-b border-gray-200 dark:border-gray-700">
-            <span className="font-semibold text-lg text-gray-800 dark:text-white">Folders</span>
           </div>
           <Sidebar />
         </div>
