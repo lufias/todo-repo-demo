@@ -23,22 +23,38 @@ export const loadFolders = createAsyncThunk('sidebar/loadFolders', async () => {
   return await getAllFolders();
 });
 
-export const addFolder = createAsyncThunk('sidebar/addFolder', async (name: string) => {
-  return await dbAddFolder(name);
+export const addFolder = createAsyncThunk('sidebar/addFolder', async (name: string, { rejectWithValue }) => {
+  try {
+    return await dbAddFolder(name);
+  } catch (error) {
+    return rejectWithValue(error instanceof Error ? error.message : 'Failed to add folder');
+  }
 });
 
-export const deleteFolder = createAsyncThunk('sidebar/deleteFolder', async (id: string) => {
-  await dbDeleteFolder(id);
-  return id;
+export const deleteFolder = createAsyncThunk('sidebar/deleteFolder', async (id: string, { rejectWithValue }) => {
+  try {
+    await dbDeleteFolder(id);
+    return id;
+  } catch (error) {
+    return rejectWithValue(error instanceof Error ? error.message : 'Failed to delete folder');
+  }
 });
 
-export const addList = createAsyncThunk('sidebar/addList', async ({ folderId, content }: { folderId: string; content: string }) => {
-  return await dbAddList(folderId, content);
+export const addList = createAsyncThunk('sidebar/addList', async ({ folderId, content }: { folderId: string; content: string }, { rejectWithValue }) => {
+  try {
+    return await dbAddList(folderId, content);
+  } catch (error) {
+    return rejectWithValue(error instanceof Error ? error.message : 'Failed to add list');
+  }
 });
 
-export const deleteList = createAsyncThunk('sidebar/deleteList', async (id: string) => {
-  await dbDeleteList(id);
-  return id;
+export const deleteList = createAsyncThunk('sidebar/deleteList', async (id: string, { rejectWithValue }) => {
+  try {
+    await dbDeleteList(id);
+    return id;
+  } catch (error) {
+    return rejectWithValue(error instanceof Error ? error.message : 'Failed to delete list');
+  }
 });
 
 export const loadListsByFolder = createAsyncThunk(
@@ -84,6 +100,9 @@ const sidebarSlice = createSlice({
       state.loading = false;
       state.error = null;
     },
+    clearError: (state) => {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -102,6 +121,10 @@ const sidebarSlice = createSlice({
       .addCase(addFolder.fulfilled, (state, action) => {
         state.folders.push(action.payload);
       })
+      .addCase(addFolder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Failed to add folder';
+      })
       .addCase(deleteFolder.fulfilled, (state, action) => {
         state.folders = state.folders.filter(folder => folder.id !== action.payload);
         state.lists = state.lists.filter(list => list.folderId !== action.payload);
@@ -109,8 +132,16 @@ const sidebarSlice = createSlice({
           state.lists = [];
         }
       })
+      .addCase(deleteFolder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Failed to delete folder';
+      })
       .addCase(addList.fulfilled, (state, action) => {
         state.lists = [...state.lists.filter(list => list.id !== action.payload.id), action.payload];
+      })
+      .addCase(addList.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Failed to add list';
       })
       .addCase(deleteList.fulfilled, (state, action) => {
         state.lists = state.lists.filter(list => list.id !== action.payload);
@@ -120,6 +151,10 @@ const sidebarSlice = createSlice({
         if (state.selectedListId === action.payload) {
           state.selectedListId = null;
         }
+      })
+      .addCase(deleteList.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Failed to delete list';
       })
       .addCase(loadListsByFolder.pending, (state) => {
         state.loading = true;
@@ -144,14 +179,22 @@ const sidebarSlice = createSlice({
           state.folders[index] = action.payload;
         }
       })
+      .addCase(renameFolder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Failed to rename folder';
+      })
       .addCase(renameList.fulfilled, (state, action) => {
         const index = state.lists.findIndex(list => list.id === action.payload.id);
         if (index !== -1) {
           state.lists[index] = action.payload;
         }
+      })
+      .addCase(renameList.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Failed to rename list';
       });
   },
 });
 
-export const { setSelectedFolderId, setSelectedListId, clearSidebarState } = sidebarSlice.actions;
+export const { setSelectedFolderId, setSelectedListId, clearSidebarState, clearError } = sidebarSlice.actions;
 export default sidebarSlice.reducer; 
