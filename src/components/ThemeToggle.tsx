@@ -1,7 +1,8 @@
 import { FaSun, FaMoon } from 'react-icons/fa';
 import { useTheme } from '../contexts/ThemeContext';
+import { FC } from 'react';
 
-export default function ThemeToggle() {
+const ThemeToggle: FC = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -17,4 +18,6 @@ export default function ThemeToggle() {
       )}
     </button>
   );
-} 
+};
+
+export default ThemeToggle; 
