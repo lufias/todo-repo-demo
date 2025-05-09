@@ -1,4 +1,4 @@
-import { FaCheck, FaTrash } from 'react-icons/fa';
+import { FaCheck, FaTrash, FaEye } from 'react-icons/fa';
 import { useAppDispatch } from '../store/hooks';
 import { updateTaskStatus, deleteTask } from '../store/slices/taskListSlice';
 import { useState } from 'react';
@@ -26,56 +26,60 @@ const barColors = {
   green: 'bg-green-300',
 };
 
-export default function TaskItem({ id, title, status, color = 'blue', description, done, tags }: TaskItemProps) {
+export default function TaskItem({ id, title, author, status, color, description, done, tags }: TaskItemProps) {
   const dispatch = useAppDispatch();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(updateTaskStatus({ taskId: id, done: e.target.checked }));
+  const handleStatusChange = (newStatus: boolean) => {
+    dispatch(updateTaskStatus({ taskId: id, done: newStatus }));
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent opening preview when clicking delete
+  const handleDelete = () => {
     dispatch(deleteTask(id));
   };
 
-  const handleClick = () => {
-    setIsPreviewOpen(true);
-  };
-
   return (
-    <>
-      <div 
-        className="flex items-center px-4 py-3 border-b last:border-b-0 bg-white cursor-pointer hover:bg-gray-50 transition-colors"
-        onClick={handleClick}
-      >
-        <div className={`w-1 h-8 rounded-full mr-3 ${barColors[color]}`} />
-        <input 
-          type="checkbox" 
-          className="mr-4 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          checked={done}
-          onChange={handleCheckboxChange}
-          onClick={(e) => e.stopPropagation()} // Prevent opening preview when clicking checkbox
-        />
-        <div className="flex-1">
+    <div className="group relative px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+      <div className="flex items-start gap-4">
+        <button
+          onClick={() => handleStatusChange(!done)}
+          className={`mt-1 flex-shrink-0 w-5 h-5 rounded-full border-2 transition-colors ${
+            done
+              ? 'bg-primary-500 border-primary-500'
+              : 'border-gray-300 dark:border-gray-600 hover:border-primary-500 dark:hover:border-primary-500'
+          }`}
+          aria-label={done ? 'Mark as incomplete' : 'Mark as complete'}
+        >
+          {done && <FaCheck className="w-full h-full text-white p-0.5" />}
+        </button>
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className={`font-medium ${done ? 'text-gray-400 line-through' : 'text-gray-900'}`}>{title}</span>
-            {status === 'rejected' && (
-              <span className="ml-2 px-2 py-0.5 rounded text-xs font-semibold bg-red-500 text-white">Rejected</span>
-            )}
-            {status === 'new' && (
-              <span className="ml-2 px-2 py-0.5 rounded text-xs font-semibold bg-blue-200 text-blue-800">NEW</span>
+            <h3 className={`text-base font-medium truncate ${done ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>
+              {title}
+            </h3>
+            {status && (
+              <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                status === 'new'
+                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                  : status === 'rejected'
+                  ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                  : ''
+              }`}>
+                {status}
+              </span>
             )}
           </div>
           {description && (
-            <div className={`text-sm leading-tight mb-1 line-clamp-2 ${done ? 'text-gray-300' : 'text-gray-400'}`}>{description}</div>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+              {description}
+            </p>
           )}
           {tags && tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-1">
+            <div className="mt-2 flex flex-wrap gap-2">
               {tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800"
+                  className="px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full"
                 >
                   {tag}
                 </span>
@@ -83,13 +87,22 @@ export default function TaskItem({ id, title, status, color = 'blue', descriptio
             </div>
           )}
         </div>
-        <button 
-          onClick={handleDelete}
-          className="text-red-500 hover:text-red-700 transition-colors"
-          title="Delete task"
-        >
-          <FaTrash size={18} />
-        </button>
+        <div className="flex-shrink-0 flex items-center gap-2">
+          <button
+            onClick={() => setIsPreviewOpen(true)}
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label="View task details"
+          >
+            <FaEye className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleDelete}
+            className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label="Delete task"
+          >
+            <FaTrash className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <TaskPreviewModal
@@ -100,6 +113,6 @@ export default function TaskItem({ id, title, status, color = 'blue', descriptio
         tags={tags}
         done={done}
       />
-    </>
+    </div>
   );
 } 

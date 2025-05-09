@@ -118,11 +118,11 @@ export default function SidebarFolder({
         ) : (
           <button
             onClick={() => onToggle(folder.id)}
-            className="flex-1 flex items-center justify-between p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex-1 flex items-center justify-between p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             <div className="flex items-center space-x-2">
-              <FaFolder className="text-blue-400 text-base" />
-              <span className="text-gray-700 font-normal">{folder.name}</span>
+              <FaFolder className="text-blue-400 text-base dark:text-blue-300" />
+              <span className="text-gray-900 dark:text-gray-100 font-normal">{folder.name}</span>
             </div>
             {expanded ? (
               <FaChevronDown className="text-gray-400 text-sm" />

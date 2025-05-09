@@ -78,11 +78,11 @@ export default function SidebarList({
         </div>
       ) : (
         <div
-          className="flex-1 flex items-center space-x-2 cursor-pointer hover:bg-gray-100 rounded px-1"
+          className="flex-1 flex items-center space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1"
           onClick={onSelect}
         >
-          <FaListUl className="text-gray-400 text-sm" />
-          <span className="text-gray-700 text-sm">{list.content}</span>
+          <FaListUl className="text-gray-400 dark:text-gray-300 text-sm" />
+          <span className="text-gray-900 dark:text-gray-100 text-sm">{list.content}</span>
         </div>
       )}
       <div className="relative" ref={dropdownRef}>

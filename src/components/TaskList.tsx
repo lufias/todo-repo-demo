@@ -84,25 +84,25 @@ export default function TaskList() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-xl w-full max-w-5xl p-0 overflow-hidden border border-gray-200 mx-auto lg:ml-4 lg:mx-0 virtuoso-container">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-5xl p-0 overflow-hidden border border-gray-200 dark:border-gray-700 mx-auto lg:ml-4 lg:mx-0 virtuoso-container">
       {/* Header */}
       <div className="px-6 pt-6 pb-2">
         <div className="flex items-center gap-2 mb-1">
-          <FaListUl className="text-gray-700 text-xl" />
-          <h2 className="text-lg font-semibold text-gray-800">{selectedList ? selectedList.content : 'List'}</h2>
+          <FaListUl className="text-gray-700 dark:text-gray-300 text-xl" />
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{selectedList ? selectedList.content : 'List'}</h2>
         </div>
         {selectedFolder && (
-          <div className="text-sm text-gray-400 font-medium pl-7">in <span className="text-gray-600 font-semibold">{selectedFolder.name}</span></div>
+          <div className="text-sm text-gray-400 dark:text-gray-500 font-medium pl-7">in <span className="text-gray-600 dark:text-gray-300 font-semibold">{selectedFolder.name}</span></div>
         )}
       </div>
       {/* Task List with Virtuoso */}
       {tasks.length === 0 ? (
-        <div className="flex items-center justify-center h-96 text-gray-400 text-lg">
+        <div className="flex items-center justify-center h-96 text-gray-400 dark:text-gray-500 text-lg">
           No tasks yet. Add your first task!
         </div>
       ) : (
         <Virtuoso
-          style={{ height: 384 }} // 24rem, similar to max-h-96
+          style={{ height: 384 }}
           totalCount={tasks.length}
           itemContent={index => {
             const task = tasks[index];
@@ -123,10 +123,10 @@ export default function TaskList() {
         />
       )}
       {/* Footer */}
-      <div className="flex justify-end gap-4 px-6 py-4 bg-white border-t">
+      <div className="flex justify-end gap-4 px-6 py-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
         <button 
           onClick={() => setIsAddTaskModalOpen(true)}
-          className="bg-blue-600 text-white px-6 py-2 rounded font-semibold hover:bg-blue-700 transition"
+          className="bg-primary-600 text-white px-6 py-2 rounded font-semibold hover:bg-primary-700 transition"
         >
           Add Task
         </button>
