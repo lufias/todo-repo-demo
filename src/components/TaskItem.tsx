@@ -1,41 +1,51 @@
 import { FaCheck, FaTrash, FaEye, FaEdit } from 'react-icons/fa';
 import { useAppDispatch } from '../store/hooks';
 import { updateTaskStatus, deleteTask } from '../store/slices/taskListSlice';
-import { useState, useRef } from 'react';
+import { useState, useRef, FC, TouchEvent, MouseEvent } from 'react';
 import TaskPreviewModal from './TaskPreviewModal';
 import EditTaskModal from './EditTaskModal';
 import { Task } from '../services/database';
 import { useClickAway } from 'react-use';
 
+type TaskStatus = 'rejected' | 'new' | undefined;
+type TaskColor = 'yellow' | 'blue' | 'green';
+
 interface TaskItemProps {
   id: string;
   title: string;
   author: string;
-  status?: 'rejected' | 'new' | undefined;
-  color?: 'yellow' | 'blue' | 'green';
+  status?: TaskStatus;
+  color?: TaskColor;
   description?: string;
   done: boolean;
   tags?: string[];
 }
 
-export default function TaskItem({ id, title, status, description, done, tags }: TaskItemProps) {
+const TaskItem: FC<TaskItemProps> = ({ 
+  id, 
+  title, 
+  status, 
+  description, 
+  done, 
+  tags 
+}) => {
   const dispatch = useAppDispatch();
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
+  const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const longPressTimeout = useRef<NodeJS.Timeout | null>(null);
-  const touchMoved = useRef(false);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const touchMoved = useRef<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useClickAway(dropdownRef, () => {
     if (isDropdownOpen) setIsDropdownOpen(false);
   });
 
-  const handleStatusChange = (newStatus: boolean) => {
+  const handleStatusChange = (newStatus: boolean): void => {
     dispatch(updateTaskStatus({ taskId: id, done: newStatus }));
   };
 
-  const handleDelete = () => {
+  const handleDelete = (): void => {
     dispatch(deleteTask(id));
   };
 
@@ -49,24 +59,51 @@ export default function TaskItem({ id, title, status, description, done, tags }:
   };
 
   // Long press handlers for mobile
-  const handleTouchStart = () => {
+  const handleTouchStart = (): void => {
     touchMoved.current = false;
     longPressTimeout.current = setTimeout(() => {
       setIsDropdownOpen(true);
     }, 500); // 500ms for long press
   };
-  const handleTouchEnd = () => {
+
+  const handleTouchEnd = (): void => {
     if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
   };
-  const handleTouchMove = () => {
+
+  const handleTouchMove = (): void => {
     touchMoved.current = true;
     if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
   };
-  const handleDropdownAction = (action: 'edit' | 'view' | 'delete') => {
+
+  const handleDropdownAction = (action: 'edit' | 'view' | 'delete'): void => {
     setIsDropdownOpen(false);
-    if (action === 'edit') setIsEditOpen(true);
-    if (action === 'view') setIsPreviewOpen(true);
-    if (action === 'delete') handleDelete();
+    switch (action) {
+      case 'edit':
+        setIsEditOpen(true);
+        break;
+      case 'view':
+        setIsPreviewOpen(true);
+        break;
+      case 'delete':
+        handleDelete();
+        break;
+    }
+  };
+
+  const handleEditClick = (): void => {
+    setIsEditOpen(true);
+  };
+
+  const handlePreviewClick = (): void => {
+    setIsPreviewOpen(true);
+  };
+
+  const handleClosePreview = (): void => {
+    setIsPreviewOpen(false);
+  };
+
+  const handleCloseEdit = (): void => {
+    setIsEditOpen(false);
   };
 
   return (
@@ -126,16 +163,15 @@ export default function TaskItem({ id, title, status, description, done, tags }:
         </div>
         
         <div className="flex items-center gap-1">
-          {/* Hide on small screens, show only on hover for large screens */}
           <button
-            onClick={() => setIsEditOpen(true)}
+            onClick={handleEditClick}
             className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 hidden sm:inline-flex"
             aria-label="Edit task"
           >
             <FaEdit className="w-4 h-4" />
           </button>
           <button
-            onClick={() => setIsPreviewOpen(true)}
+            onClick={handlePreviewClick}
             className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 hidden sm:inline-flex"
             aria-label="View task details"
           >
@@ -176,7 +212,7 @@ export default function TaskItem({ id, title, status, description, done, tags }:
 
       <TaskPreviewModal
         isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
+        onClose={handleClosePreview}
         title={title}
         description={description}
         tags={tags}
@@ -185,9 +221,11 @@ export default function TaskItem({ id, title, status, description, done, tags }:
 
       <EditTaskModal
         isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
+        onClose={handleCloseEdit}
         task={task}
       />
     </div>
   );
-} 
+};
+
+export default TaskItem; 
