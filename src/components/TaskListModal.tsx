@@ -11,11 +11,11 @@ export default function TaskList() {
       </div>
       {/* Task List */}
       <div className="max-h-96 overflow-y-auto divide-y">
-        <TaskItem title="Call Sam For payments" author="Bob" status="rejected" color="yellow" />
-        <TaskItem title="Make payment to Bluedart" author="Johnny" status="new" color="blue" />
-        <TaskItem title="Office rent" author="Samino!" color="blue" />
-        <TaskItem title="Office grocery shopping" author="Tida" color="blue" />
-        <TaskItem title="Ask for Lunch to Clients" author="Office Admin" color="green" />
+        <TaskItem id="1" title="Call Sam For payments" author="Bob" status="rejected" color="yellow" done={false} />
+        <TaskItem id="2" title="Make payment to Bluedart" author="Johnny" status="new" color="blue" done={false} />
+        <TaskItem id="3" title="Office rent" author="Samino!" color="blue" done={false} />
+        <TaskItem id="4" title="Office grocery shopping" author="Tida" color="blue" done={false} />
+        <TaskItem id="5" title="Ask for Lunch to Clients" author="Office Admin" color="green" done={false} />
       </div>
       {/* Footer */}
       <div className="flex justify-end gap-4 px-6 py-4 bg-white border-t">

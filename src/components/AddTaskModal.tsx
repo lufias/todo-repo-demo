@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, FC, FormEvent, ChangeEvent } from 'react';
 import { useAppDispatch } from '../store/hooks';
 import { addTask } from '../store/slices/taskListSlice';
 import { FaTimes } from 'react-icons/fa';
@@ -9,18 +9,18 @@ interface AddTaskModalProps {
   listId: string;
 }
 
-export default function AddTaskModal({ isOpen, onClose, listId }: AddTaskModalProps) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [titleError, setTitleError] = useState('');
+const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, listId }) => {
+  const [title, setTitle] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [titleError, setTitleError] = useState<string>('');
   const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState('');
-  const [tagError, setTagError] = useState('');
+  const [tagInput, setTagInput] = useState<string>('');
+  const [tagError, setTagError] = useState<string>('');
   const dispatch = useAppDispatch();
 
   if (!isOpen) return null;
 
-  const validateTitle = (value: string) => {
+  const validateTitle = (value: string): boolean => {
     if (!value.trim()) {
       setTitleError('Title is required');
       return false;
@@ -29,7 +29,7 @@ export default function AddTaskModal({ isOpen, onClose, listId }: AddTaskModalPr
     return true;
   };
 
-  const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTagInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value;
     setTagInput(value);
     setTagError('');
@@ -44,7 +44,7 @@ export default function AddTaskModal({ isOpen, onClose, listId }: AddTaskModalPr
     }
   };
 
-  const addTag = (tag: string) => {
+  const addTag = (tag: string): void => {
     const trimmedTag = tag.trim();
     if (!trimmedTag) return;
 
@@ -61,12 +61,12 @@ export default function AddTaskModal({ isOpen, onClose, listId }: AddTaskModalPr
     setTags([...tags, trimmedTag]);
   };
 
-  const removeTag = (tagToRemove: string) => {
+  const removeTag = (tagToRemove: string): void => {
     setTags(tags.filter(tag => tag !== tagToRemove));
     setTagError('');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     
     if (!validateTitle(title)) return;
@@ -90,7 +90,7 @@ export default function AddTaskModal({ isOpen, onClose, listId }: AddTaskModalPr
     }
   };
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value;
     setTitle(value);
     if (titleError) {
@@ -101,7 +101,11 @@ export default function AddTaskModal({ isOpen, onClose, listId }: AddTaskModalPr
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
+        <div 
+          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+          onClick={onClose}
+          data-testid="modal-overlay"
+        />
 
         <div className="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
           <div className="px-6 pt-6 pb-2">
@@ -181,6 +185,7 @@ export default function AddTaskModal({ isOpen, onClose, listId }: AddTaskModalPr
                           type="button"
                           onClick={() => removeTag(tag)}
                           className="ml-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                          aria-label={`Remove tag ${tag}`}
                         >
                           <FaTimes className="w-3 h-3" />
                         </button>
@@ -211,4 +216,6 @@ export default function AddTaskModal({ isOpen, onClose, listId }: AddTaskModalPr
       </div>
     </div>
   );
-}
+};
+
+export default AddTaskModal;
