@@ -23,7 +23,7 @@ const Layout: FC<LayoutProps> = () => {
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="container px-4 py-4 flex items-center justify-between">
+        <div className="container max-w-full px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             {/* Burger menu only visible on mobile */}
             <button
