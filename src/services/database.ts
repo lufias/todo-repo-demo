@@ -166,6 +166,12 @@ export async function deleteFolder(id: string): Promise<void> {
   
   // Finally delete the folder
   await localforage.removeItem(`folder:${id}`);
+
+  // Reset folder_id_counter if no folders remain
+  const folders = await getAllFolders();
+  if (folders.length === 0) {
+    await localforage.removeItem('folder_id_counter');
+  }
 }
 
 export async function deleteList(id: string): Promise<void> {
@@ -177,8 +183,32 @@ export async function deleteList(id: string): Promise<void> {
   
   // Then delete the list
   await localforage.removeItem(`list:${id}`);
+
+  // Reset list_id_counter if no lists remain
+  let anyListLeft = false;
+  await localforage.iterate((value, key) => {
+    if (key.startsWith('list:')) {
+      anyListLeft = true;
+      return false; // stop iteration
+    }
+  });
+  if (!anyListLeft) {
+    await localforage.removeItem('list_id_counter');
+  }
 }
 
 export async function deleteTask(id: string): Promise<void> {
   await localforage.removeItem(`task:${id}`);
+
+  // Reset task_id_counter if no tasks remain
+  let anyTaskLeft = false;
+  await localforage.iterate((value, key) => {
+    if (key.startsWith('task:')) {
+      anyTaskLeft = true;
+      return false; // stop iteration
+    }
+  });
+  if (!anyTaskLeft) {
+    await localforage.removeItem('task_id_counter');
+  }
 } 

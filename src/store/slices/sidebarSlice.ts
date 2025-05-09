@@ -104,12 +104,19 @@ const sidebarSlice = createSlice({
       })
       .addCase(deleteFolder.fulfilled, (state, action) => {
         state.folders = state.folders.filter(folder => folder.id !== action.payload);
+        state.lists = state.lists.filter(list => list.folderId !== action.payload);
+        if (state.folders.length === 0 || state.lists.length === 0) {
+          state.lists = [];
+        }
       })
       .addCase(addList.fulfilled, (state, action) => {
-        state.lists.push(action.payload);
+        state.lists = [...state.lists.filter(list => list.id !== action.payload.id), action.payload];
       })
       .addCase(deleteList.fulfilled, (state, action) => {
         state.lists = state.lists.filter(list => list.id !== action.payload);
+        if (state.lists.length === 0) {
+          state.lists = [];
+        }
       })
       .addCase(loadListsByFolder.pending, (state) => {
         state.loading = true;
@@ -117,10 +124,11 @@ const sidebarSlice = createSlice({
       })
       .addCase(loadListsByFolder.fulfilled, (state, action) => {
         const folderId = action.meta.arg;
-        state.lists = [
+        const newLists = [
           ...state.lists.filter(list => list.folderId !== folderId),
           ...action.payload
         ];
+        state.lists = Array.from(new Map(newLists.map(list => [list.id, list])).values());
         state.loading = false;
       })
       .addCase(loadListsByFolder.rejected, (state, action) => {
