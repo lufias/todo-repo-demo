@@ -39,6 +39,7 @@ export default function AddTaskModal({ isOpen, onClose, listId }: AddTaskModalPr
       const newTag = value.slice(0, -1).trim();
       if (newTag) {
         addTag(newTag);
+        setTagInput(''); // Clear the input after adding a tag
       }
     }
   };
