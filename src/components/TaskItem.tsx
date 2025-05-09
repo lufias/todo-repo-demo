@@ -18,18 +18,7 @@ interface TaskItemProps {
   tags?: string[];
 }
 
-const statusStyles = {
-  rejected: 'bg-red-600 text-white',
-  new: 'bg-blue-200 text-blue-800',
-};
-
-const barColors = {
-  yellow: 'bg-yellow-300',
-  blue: 'bg-blue-300',
-  green: 'bg-green-300',
-};
-
-export default function TaskItem({ id, title, author, status, color, description, done, tags }: TaskItemProps) {
+export default function TaskItem({ id, title, status, description, done, tags }: TaskItemProps) {
   const dispatch = useAppDispatch();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
