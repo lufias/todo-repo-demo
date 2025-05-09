@@ -24,6 +24,7 @@ interface SidebarFolderProps {
   onRenameFolder: (folderId: string, newName: string) => void;
   onRenameList: (listId: string, folderId: string, newName: string) => void;
   disableDelete: boolean;
+  onSelectList: (listId: string) => void;
 }
 
 export default function SidebarFolder({
@@ -46,6 +47,7 @@ export default function SidebarFolder({
   onRenameFolder,
   onRenameList,
   disableDelete,
+  onSelectList,
 }: SidebarFolderProps) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newFolderName, setNewFolderName] = useState(folder.name);
@@ -229,6 +231,7 @@ export default function SidebarFolder({
                 onDelete={() => onDeleteList(list.id, folder.id)}
                 onRename={(newName) => onRenameList(list.id, folder.id, newName)}
                 isLastList={disableListDelete}
+                onSelect={() => onSelectList(list.id)}
               />
             );
           })}

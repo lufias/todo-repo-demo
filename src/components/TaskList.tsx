@@ -1,6 +1,7 @@
 import { FaListUl } from 'react-icons/fa';
 import TaskItem from './TaskItem';
 import { Virtuoso } from 'react-virtuoso';
+import { useAppSelector } from '../store/hooks';
 
 // const tasks = [
 //   {
@@ -49,6 +50,17 @@ type Task = {
 const tasks: Task[] = [];
 
 export default function TaskList() {
+  const selectedListId = useAppSelector(state => state.sidebar.selectedListId);
+  const tasks = useAppSelector(state => state.taskList.tasks);
+
+  if (!selectedListId) {
+    return (
+      <div className="flex items-center justify-center h-96 text-gray-400 text-lg">
+        No list selected. Pick a list from the sidebar or create a new one.
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-xl w-full max-w-5xl p-0 overflow-hidden border border-gray-200 mx-auto lg:ml-4 lg:mx-0 virtuoso-container">
       {/* Header */}
@@ -69,8 +81,8 @@ export default function TaskList() {
             const task = tasks[index];
             return (
               <TaskItem
-                key={index}
-                title={task.title}              
+                key={task.id || index}
+                title={task.title}
                 status={task.status as any}
                 color={task.color as any}
                 description={task.description}

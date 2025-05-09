@@ -9,6 +9,7 @@ interface SidebarListProps {
   onDelete: () => void;
   onRename: (newName: string) => void;
   isLastList: boolean;
+  onSelect: () => void;
 }
 
 export default function SidebarList({
@@ -18,6 +19,7 @@ export default function SidebarList({
   onDelete,
   onRename,
   isLastList,
+  onSelect,
 }: SidebarListProps) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newListName, setNewListName] = useState(list.content);
@@ -75,7 +77,10 @@ export default function SidebarList({
           </button>
         </div>
       ) : (
-        <div className="flex-1 flex items-center space-x-2">
+        <div
+          className="flex-1 flex items-center space-x-2 cursor-pointer hover:bg-gray-100 rounded px-1"
+          onClick={onSelect}
+        >
           <FaListUl className="text-gray-400 text-sm" />
           <span className="text-gray-700 text-sm">{list.content}</span>
         </div>

@@ -11,7 +11,9 @@ import {
   deleteList as deleteListThunk,
   renameFolder as renameFolderThunk,
   renameList as renameListThunk,
+  setSelectedListId,
 } from '../store/slices/sidebarSlice';
+import { loadTasksByList } from '../store/slices/taskListSlice';
 import SidebarFolder from './SidebarFolder';
 import { Folder, getAllFolders } from '../services/database';
 
@@ -116,6 +118,11 @@ export default function Sidebar() {
     });
   };
 
+  const handleSelectList = (listId: string) => {
+    dispatch(setSelectedListId(listId));
+    dispatch(loadTasksByList(listId));
+  };
+
   return (
     <div className="p-2 space-y-1 overflow-y-auto h-[calc(100%-4rem)]" onClick={handleClickOutside}>
       <div className="flex items-center justify-between mb-4">
@@ -210,6 +217,7 @@ export default function Sidebar() {
           onRenameFolder={handleRenameFolder}
           onRenameList={handleRenameList}
           disableDelete={disableDelete}
+          onSelectList={handleSelectList}
         />
       ))}
     </div>
