@@ -8,42 +8,6 @@ import { useAppDispatch } from '../store/hooks';
 import { loadTasksByList } from '../store/slices/tasksSlice';
 import { Task, List, Folder } from '../services/database';
 
-// const tasks = [
-//   {
-//     title: 'Call Sam For payments',
-//     author: 'Bob',
-//     status: 'rejected',
-//     color: 'yellow',
-//     description: 'Follow up with Sam regarding the overdue payment for last month. The invoice #INV-2024-001 is pending since January 15th. Need to discuss the payment terms and any potential issues that might be causing the delay. Also, check if they need any additional documentation.'
-//   },
-//   {
-//     title: 'Make payment to Bluedart',
-//     author: 'Johnny',
-//     status: 'new',
-//     color: 'blue',
-//     description: 'Ensure the invoice is correct before making the payment. The monthly courier charges for February need to be verified against the service usage report. Check for any discrepancies in the weight calculations and verify the fuel surcharge percentages. Also, confirm if there are any pending claims that need to be adjusted.'
-//   },
-//   {
-//     title: 'Office rent',
-//     author: 'Samino!',
-//     color: 'blue',
-//     description: 'Process the quarterly rent payment for the office space. The lease agreement specifies a 5% annual increase, so make sure to calculate the new amount correctly. Also, check if there are any maintenance charges or utility bills that need to be included in this payment cycle.'
-//   },
-//   {
-//     title: 'Office grocery shopping',
-//     author: 'Tida',
-//     color: 'blue',
-//     description: 'Buy snacks, coffee, and cleaning supplies for the office kitchen. Make sure to get organic coffee beans from the preferred supplier, and stock up on healthy snack options. Don\'t forget to check the inventory of cleaning supplies and restock any items that are running low. Also, verify the expiry dates of existing items.'
-//   },
-//   {
-//     title: 'Ask for Lunch to Clients',
-//     author: 'Office Admin',
-//     color: 'green',
-//     description: 'Coordinate with the visiting clients for their lunch preferences. We have a team of 5 people coming in for the quarterly review meeting. Need to check dietary restrictions, preferred cuisine, and any specific restaurant preferences. Also, make sure to book a table in advance and inform the restaurant about the exact number of people.'
-//   },
-//   // Add more tasks here to test virtual scrolling
-// ];
-
 interface TaskViewProps {}
 
 const TaskView: FC<TaskViewProps> = () => {
@@ -88,6 +52,8 @@ const TaskView: FC<TaskViewProps> = () => {
           </div>
         )}
       </div>
+      {/* Full-width border divider */}
+      <div className="border-b border-gray-300 dark:border-gray-700 my-2 w-full" />
       {/* Task List with Virtuoso */}
       {tasks.length === 0 ? (
         <div className="flex items-center justify-center h-96 text-gray-400 dark:text-gray-500 text-lg">
