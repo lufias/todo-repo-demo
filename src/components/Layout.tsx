@@ -1,11 +1,23 @@
 import { Outlet } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, FC } from 'react';
 import { FaBars } from 'react-icons/fa';
 import Sidebar from './Sidebar';
 import ThemeToggle from './ThemeToggle';
 
-export default function Layout() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+interface LayoutProps {
+  // Add any props if needed in the future
+}
+
+const Layout: FC<LayoutProps> = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+
+  const handleSidebarToggle = (): void => {
+    setIsSidebarOpen(prev => !prev);
+  };
+
+  const handleSidebarClose = (): void => {
+    setIsSidebarOpen(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors">
@@ -15,13 +27,14 @@ export default function Layout() {
           <div className="flex items-center space-x-4">
             {/* Burger menu only visible on mobile */}
             <button
-              onClick={() => setIsSidebarOpen(true)}
+              onClick={handleSidebarToggle}
               className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors md:hidden"
               aria-label="Open sidebar"
+              data-testid="sidebar-toggle"
             >
               <FaBars />
             </button>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Todo App</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white" data-testid="app-title">Todo App</h1>
           </div>
           <ThemeToggle />
         </div>
@@ -34,8 +47,9 @@ export default function Layout() {
         {isSidebarOpen && (
           <div
             className="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={handleSidebarClose}
             aria-label="Close sidebar backdrop"
+            data-testid="sidebar-backdrop"
           />
         )}
         <div
@@ -44,13 +58,15 @@ export default function Layout() {
             ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
             md:static md:translate-x-0 md:flex-shrink-0 md:h-auto md:z-auto
           `}
+          data-testid="sidebar"
         >
           {/* Close button only on mobile */}
           <div className="flex items-center p-4 border-b border-gray-200 dark:border-gray-700 md:hidden">
             <button
-              onClick={() => setIsSidebarOpen(false)}
+              onClick={handleSidebarClose}
               className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors mr-2"
               aria-label="Close sidebar"
+              data-testid="sidebar-close"
             >
               <FaBars />
             </button>
@@ -64,7 +80,7 @@ export default function Layout() {
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto flex justify-center">
+        <main className="flex-1 overflow-auto flex justify-center" data-testid="main-content">
           <div className="container px-4 py-6">
             <Outlet />
           </div>
@@ -72,11 +88,13 @@ export default function Layout() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-center  ">
+      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-center" data-testid="footer">
         <div className="container px-4 py-4">
           <p className="text-center text-gray-600 dark:text-gray-400">© 2024 Todo App. All rights reserved.</p>
         </div>
       </footer>
     </div>
   );
-} 
+};
+
+export default Layout; 
