@@ -1,4 +1,4 @@
-import { FaEllipsisH, FaTrash, FaEdit } from 'react-icons/fa';
+import { FaListUl, FaEllipsisH, FaTrash, FaEdit } from 'react-icons/fa';
 import { useState, useRef } from 'react';
 import { useClickAway } from 'react-use';
 
@@ -8,9 +8,17 @@ interface SidebarListProps {
   setActiveDropdown: (id: string | null) => void;
   onDelete: () => void;
   onRename: (newName: string) => void;
+  isLastList: boolean;
 }
 
-export default function SidebarList({ list, activeDropdown, setActiveDropdown, onDelete, onRename }: SidebarListProps) {
+export default function SidebarList({
+  list,
+  activeDropdown,
+  setActiveDropdown,
+  onDelete,
+  onRename,
+  isLastList,
+}: SidebarListProps) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newListName, setNewListName] = useState(list.content);
   const dropdownRef = useRef(null);
@@ -32,6 +40,7 @@ export default function SidebarList({ list, activeDropdown, setActiveDropdown, o
     <div className="flex items-center justify-between group">
       {isRenaming ? (
         <div className="flex-1 flex items-center space-x-2">
+          <FaListUl className="text-gray-400 text-sm" />
           <input
             autoFocus
             type="text"
@@ -66,11 +75,10 @@ export default function SidebarList({ list, activeDropdown, setActiveDropdown, o
           </button>
         </div>
       ) : (
-        <button
-          className="flex-1 text-left px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors font-normal"
-        >
-          {list.content}
-        </button>
+        <div className="flex-1 flex items-center space-x-2">
+          <FaListUl className="text-gray-400 text-sm" />
+          <span className="text-gray-700 text-sm">{list.content}</span>
+        </div>
       )}
       <div className="relative" ref={dropdownRef}>
         <button
@@ -78,14 +86,14 @@ export default function SidebarList({ list, activeDropdown, setActiveDropdown, o
             e.stopPropagation();
             setActiveDropdown(activeDropdown === list.id ? null : list.id);
           }}
-          className="p-1 hover:bg-gray-100 rounded transition-colors ml-2 opacity-0 group-hover:opacity-100"
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
           title="List options"
         >
           <FaEllipsisH className="text-gray-400 text-xs" />
         </button>
         {activeDropdown === list.id && (
           <div
-            className="absolute right-0 mt-1 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
+            className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
             onClick={e => e.stopPropagation()}
           >
             <button
@@ -96,7 +104,7 @@ export default function SidebarList({ list, activeDropdown, setActiveDropdown, o
               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             >
               <FaEdit className="mr-2 text-blue-400 text-sm" />
-              Rename
+              Rename List
             </button>
             <button
               onClick={() => {

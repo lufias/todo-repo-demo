@@ -2,6 +2,7 @@ import { FaFolder, FaChevronDown, FaChevronRight, FaEllipsisH, FaTrash, FaListUl
 import SidebarList from './SidebarList.tsx';
 import { useState, useRef } from 'react';
 import { useClickAway } from 'react-use';
+import { useAppSelector } from '../store/hooks';
 
 interface SidebarFolderProps {
   folder: { id: string; name: string };
@@ -22,6 +23,7 @@ interface SidebarFolderProps {
   onDeleteList: (listId: string, folderId: string) => void;
   onRenameFolder: (folderId: string, newName: string) => void;
   onRenameList: (listId: string, folderId: string, newName: string) => void;
+  disableDelete: boolean;
 }
 
 export default function SidebarFolder({
@@ -43,10 +45,14 @@ export default function SidebarFolder({
   onDeleteList,
   onRenameFolder,
   onRenameList,
+  disableDelete,
 }: SidebarFolderProps) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newFolderName, setNewFolderName] = useState(folder.name);
   const dropdownRef = useRef(null);
+  const allFolders = useAppSelector(state => state.sidebar.folders);
+  const allLists = useAppSelector(state => state.sidebar.lists);
+  const folderLists = lists.filter(list => list.folderId === folder.id);
 
   useClickAway(dropdownRef, () => {
     if (dropdownOpen) {
@@ -60,6 +66,13 @@ export default function SidebarFolder({
     }
     setIsRenaming(false);
   };
+
+  const isLastFolder = allFolders.length === 1;
+  const listsInThisFolder = allLists.filter(l => l.folderId === folder.id);
+  const wouldRemoveLastList = allLists.length === listsInThisFolder.length;
+  const disableFolderDelete = isLastFolder || wouldRemoveLastList;
+
+  const totalListsCount = allLists.length;
 
   return (
     <div className="rounded-lg">
@@ -203,9 +216,11 @@ export default function SidebarFolder({
               </button>
             </div>
           )}
-          {lists
-            .filter(list => list.folderId === folder.id)
-            .map(list => (
+          {folderLists.map(list => {
+            const isOnlyListInSystem = totalListsCount === 1;
+            const isOnlyListInFolder = folderLists.length === 1;
+            const disableListDelete = isOnlyListInSystem || isOnlyListInFolder;
+            return (
               <SidebarList
                 key={list.id}
                 list={list}
@@ -213,8 +228,10 @@ export default function SidebarFolder({
                 setActiveDropdown={setActiveListDropdown}
                 onDelete={() => onDeleteList(list.id, folder.id)}
                 onRename={(newName) => onRenameList(list.id, folder.id, newName)}
+                isLastList={disableListDelete}
               />
-            ))}
+            );
+          })}
         </div>
       )}
     </div>

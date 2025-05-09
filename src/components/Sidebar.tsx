@@ -13,8 +13,7 @@ import {
   renameList as renameListThunk,
 } from '../store/slices/sidebarSlice';
 import SidebarFolder from './SidebarFolder';
-
-
+import { Folder, getAllFolders } from '../services/database';
 
 export default function Sidebar() {
   const dispatch = useAppDispatch();
@@ -28,8 +27,27 @@ export default function Sidebar() {
   const [newListName, setNewListName] = useState('');
   const [activeListDropdown, setActiveListDropdown] = useState<string | null>(null);
 
+  const disableDelete = folders.length === 1 && lists.length === 1;
+
+  // Robust initialization: check storage directly
   useEffect(() => {
-    dispatch(loadFolders());
+    (async () => {
+      const storedFolders = await getAllFolders();
+      if (!storedFolders || storedFolders.length === 0) {
+        // No folders in storage, create default
+        const folderAction = await dispatch(addFolderThunk('My Folder'));
+        const folder = folderAction.payload as Folder;
+        if (folder) {
+          await dispatch(addListThunk({ folderId: folder.id, content: 'My List' }));
+          setExpandedFolders(new Set([folder.id]));
+        }
+        // Always reload folders after creation to sync state
+        dispatch(loadFolders());
+      } else {
+        // Just load folders as usual
+        dispatch(loadFolders());
+      }
+    })();
   }, [dispatch]);
 
   // Load lists when a folder is expanded
@@ -72,7 +90,11 @@ export default function Sidebar() {
 
   const handleAddList = (folderId: string, content: string) => {
     dispatch(addListThunk({ folderId, content })).then(() => {
-      dispatch(loadListsByFolder(folderId));
+      // Always reload lists for the currently expanded folder
+      if (expandedFolders.size === 1) {
+        const expandedId = Array.from(expandedFolders)[0];
+        dispatch(loadListsByFolder(expandedId));
+      }
       setNewListName('');
       setAddingListFolderId(null);
     });
@@ -187,6 +209,7 @@ export default function Sidebar() {
           onDeleteList={handleDeleteList}
           onRenameFolder={handleRenameFolder}
           onRenameList={handleRenameList}
+          disableDelete={disableDelete}
         />
       ))}
     </div>
