@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import TaskList from '../TaskList';
+import TaskView from '../TaskView';
 import { TestWrapper } from '../../test/test-utils';
 import { Task, List, Folder } from '../../services/database';
 import { useAppSelector } from '../../store/hooks';
@@ -99,7 +99,7 @@ const mockState: RootState = {
     loading: false,
     error: null
   },
-  taskList: {
+  tasks: {
     tasks: mockTasks,
     loading: false,
     error: null
@@ -115,17 +115,17 @@ vi.mock('../../store/hooks', () => ({
   useAppSelector: vi.fn()
 }));
 
-const renderTaskList = (state: RootState = mockState) => {
+const renderTaskView = (state: RootState = mockState) => {
   // Set up the mock selector for this render
   vi.mocked(useAppSelector).mockImplementation((selector) => selector(state));
   
   return render(
-    <TaskList />,
+    <TaskView />,
     { wrapper: TestWrapper }
   );
 };
 
-describe('TaskList', () => {
+describe('TaskView', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset the mock selector to use the default state
@@ -141,7 +141,7 @@ describe('TaskList', () => {
       }
     };
     
-    renderTaskList(noListState);
+    renderTaskView(noListState);
     
     expect(screen.getByText('No list selected. Pick a list from the sidebar or create a new one.')).toBeDefined();
   });
@@ -156,13 +156,13 @@ describe('TaskList', () => {
       }
     };
     
-    renderTaskList(deletedListState);
+    renderTaskView(deletedListState);
     
     expect(screen.getByText('No list selected. Pick a list from the sidebar or create a new one.')).toBeDefined();
   });
 
   it('should render list and folder information', () => {
-    renderTaskList();
+    renderTaskView();
     
     expect(screen.getByText('Test List')).toBeDefined();
     expect(screen.getByText('in')).toBeDefined();
@@ -170,7 +170,7 @@ describe('TaskList', () => {
   });
 
   it('should load tasks when a list is selected', async () => {
-    renderTaskList();
+    renderTaskView();
     
     await waitFor(() => {
       expect(mockDispatch).toHaveBeenCalledWith(expect.any(Function));
@@ -178,7 +178,7 @@ describe('TaskList', () => {
   });
 
   it('should render tasks using Virtuoso', () => {
-    renderTaskList();
+    renderTaskView();
     
     expect(screen.getByTestId('virtuoso-list')).toBeDefined();
     expect(screen.getByText('Test Task 1')).toBeDefined();
@@ -190,20 +190,20 @@ describe('TaskList', () => {
   it('should show empty state when no tasks exist', () => {
     const emptyTasksState: RootState = {
       ...mockState,
-      taskList: {
-        ...mockState.taskList,
+      tasks: {
+        ...mockState.tasks,
         tasks: []
       }
     };
     
-    renderTaskList(emptyTasksState);
+    renderTaskView(emptyTasksState);
     
     expect(screen.getByText('No tasks yet. Add your first task!')).toBeDefined();
   });
 
   it('should open add task modal when clicking add button', async () => {
     const user = userEvent.setup();
-    renderTaskList();
+    renderTaskView();
 
     const addButton = screen.getByText('Add Task');
     await act(async () => {
@@ -215,7 +215,7 @@ describe('TaskList', () => {
 
   it('should close add task modal', async () => {
     const user = userEvent.setup();
-    renderTaskList();
+    renderTaskView();
 
     // Open modal
     const addButton = screen.getByText('Add Task');

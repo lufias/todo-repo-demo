@@ -13,7 +13,7 @@ import {
   renameList as renameListThunk,
   setSelectedListId,
 } from '../store/slices/sidebarSlice';
-import { loadTasksByList } from '../store/slices/taskListSlice';
+import { loadTasksByList } from '../store/slices/tasksSlice';
 import SidebarFolder from './SidebarFolder';
 import { Folder, getAllFolders } from '../services/database';
 

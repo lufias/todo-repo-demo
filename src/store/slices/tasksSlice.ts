@@ -1,34 +1,34 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { Task, getTasksByList, addTask as dbAddTask, updateTaskStatus as dbUpdateTaskStatus, deleteTask as dbDeleteTask, updateTask as dbUpdateTask } from '../../services/database';
 
-interface TaskListState {
+interface TasksState {
   tasks: Task[];
   loading: boolean;
   error: string | null;
 }
 
-const initialState: TaskListState = {
+const initialState: TasksState = {
   tasks: [],
   loading: false,
   error: null,
 };
 
 export const loadTasksByList = createAsyncThunk(
-  'taskList/loadTasksByList',
+  'tasks/loadTasksByList',
   async (listId: string) => {
     return await getTasksByList(listId);
   }
 );
 
 export const addTask = createAsyncThunk(
-  'taskList/addTask',
+  'tasks/addTask',
   async ({ listId, title, description, tags }: { listId: string; title: string; description?: string; tags?: string[] }) => {
     return await dbAddTask(listId, title, description, tags);
   }
 );
 
 export const updateTaskStatus = createAsyncThunk(
-  'taskList/updateTaskStatus',
+  'tasks/updateTaskStatus',
   async ({ taskId, done }: { taskId: string; done: boolean }) => {
     await dbUpdateTaskStatus(taskId, done);
     return { taskId, done };
@@ -36,7 +36,7 @@ export const updateTaskStatus = createAsyncThunk(
 );
 
 export const deleteTask = createAsyncThunk(
-  'taskList/deleteTask',
+  'tasks/deleteTask',
   async (taskId: string) => {
     await dbDeleteTask(taskId);
     return taskId;
@@ -44,7 +44,7 @@ export const deleteTask = createAsyncThunk(
 );
 
 export const updateTask = createAsyncThunk(
-  'taskList/updateTask',
+  'tasks/updateTask',
   async ({ taskId, updates }: { taskId: string; updates: Partial<Task> }) => {
     const updatedTask = await dbUpdateTask(taskId, updates);
     if (!updatedTask) throw new Error('Task not found');
@@ -52,8 +52,8 @@ export const updateTask = createAsyncThunk(
   }
 );
 
-const taskListSlice = createSlice({
-  name: 'taskList',
+const tasksSlice = createSlice({
+  name: 'tasks',
   initialState,
   reducers: {
     clearTasks(state) {
@@ -96,5 +96,5 @@ const taskListSlice = createSlice({
   },
 });
 
-export const { clearTasks } = taskListSlice.actions;
-export default taskListSlice.reducer; 
+export const { clearTasks } = tasksSlice.actions;
+export default tasksSlice.reducer; 

@@ -1,6 +1,6 @@
 import { useState, useEffect, FC, FormEvent, ChangeEvent } from 'react';
 import { useAppDispatch } from '../store/hooks';
-import { updateTask } from '../store/slices/taskListSlice';
+import { updateTask } from '../store/slices/tasksSlice';
 import { FaTimes } from 'react-icons/fa';
 import { Task } from '../services/database';
 

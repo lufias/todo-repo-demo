@@ -38,7 +38,7 @@ const mockTask: Task = {
 
 // Mock the Redux state
 const mockState = {
-  taskList: {
+  tasks: {
     tasks: [mockTask],
     lists: [],
     loading: false,

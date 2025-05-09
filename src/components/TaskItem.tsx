@@ -1,6 +1,6 @@
 import { FaCheck, FaTrash, FaEye, FaEdit } from 'react-icons/fa';
 import { useAppDispatch } from '../store/hooks';
-import { updateTaskStatus, deleteTask } from '../store/slices/taskListSlice';
+import { updateTaskStatus, deleteTask } from '../store/slices/tasksSlice';
 import { useState, useRef, FC, TouchEvent, MouseEvent } from 'react';
 import TaskPreviewModal from './TaskPreviewModal';
 import EditTaskModal from './EditTaskModal';

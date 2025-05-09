@@ -1,6 +1,6 @@
 import { useState, FC, FormEvent, ChangeEvent } from 'react';
 import { useAppDispatch } from '../store/hooks';
-import { addTask } from '../store/slices/taskListSlice';
+import { addTask } from '../store/slices/tasksSlice';
 import { FaTimes } from 'react-icons/fa';
 
 interface AddTaskModalProps {
