@@ -23,9 +23,8 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('../../assets/menu-food-left.svg', () => ({
-  ReactComponent: () => <svg data-testid="mock-logo" />,
-  default: '',
+vi.mock('../../assets/menu-food-left.svg?react', () => ({
+  default: () => <svg data-testid="mock-logo" />,
 }));
 
 const renderLayout = () => {
@@ -114,5 +113,10 @@ describe('Layout', () => {
     const mainContent = screen.getByTestId('main-content');
     expect(mainContent).toBeDefined();
     expect(screen.getByTestId('outlet')).toBeDefined();
+  });
+
+  it('should render the logo', () => {
+    renderLayout();
+    expect(screen.getByTestId('mock-logo')).toBeDefined();
   });
 }); 
