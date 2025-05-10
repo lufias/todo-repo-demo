@@ -16,6 +16,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, listId }) => {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState<string>('');
   const [tagError, setTagError] = useState<string>('');
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('low');
   const dispatch = useAppDispatch();
 
   if (!isOpen) return null;
@@ -76,7 +77,8 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, listId }) => {
         listId, 
         title: title.trim(),
         description: description.trim(),
-        tags
+        tags,
+        priority,
       })).unwrap();
       setTitle('');
       setDescription('');
@@ -84,6 +86,7 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, listId }) => {
       setTags([]);
       setTagInput('');
       setTagError('');
+      setPriority('low');
       onClose();
     } catch (error) {
       console.error('Failed to add task:', error);
@@ -199,6 +202,50 @@ const AddTaskModal: FC<AddTaskModalProps> = ({ isOpen, onClose, listId }) => {
                     ))}
                   </div>
                 )}
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Priority
+                </label>
+                <div className="flex gap-4" role="radiogroup" aria-labelledby="priority-label">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      name="priority"
+                      value="low"
+                      checked={priority === 'low'}
+                      onChange={() => setPriority('low')}
+                      className="form-radio text-green-500 focus:ring-green-500"
+                      data-testid="priority-low"
+                    />
+                    <span className="ml-2">Low</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      name="priority"
+                      value="medium"
+                      checked={priority === 'medium'}
+                      onChange={() => setPriority('medium')}
+                      className="form-radio text-yellow-500 focus:ring-yellow-500"
+                      data-testid="priority-medium"
+                    />
+                    <span className="ml-2">Medium</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      name="priority"
+                      value="high"
+                      checked={priority === 'high'}
+                      onChange={() => setPriority('high')}
+                      className="form-radio text-red-500 focus:ring-red-500"
+                      data-testid="priority-high"
+                    />
+                    <span className="ml-2">High</span>
+                  </label>
+                </div>
               </div>
 
               <div className="flex justify-end gap-4 px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-600">

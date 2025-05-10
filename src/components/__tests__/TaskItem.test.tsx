@@ -187,4 +187,22 @@ describe('TaskItem', () => {
     // Verify dropdown is closed after action
     expect(screen.queryByTestId('dropdown-edit')).toBeNull();
   });
+
+  it('should use sky-300 border for low priority', () => {
+    renderTaskItem({ priority: 'low' });
+    const container = screen.getByTestId('task-item-container');
+    expect(container.className).toContain('border-l-sky-300');
+  });
+
+  it('should use amber-400 border for medium priority', () => {
+    renderTaskItem({ priority: 'medium' });
+    const container = screen.getByTestId('task-item-container');
+    expect(container.className).toContain('border-l-amber-400');
+  });
+
+  it('should use rose-400 border for high priority', () => {
+    renderTaskItem({ priority: 'high' });
+    const container = screen.getByTestId('task-item-container');
+    expect(container.className).toContain('border-l-rose-400');
+  });
 }); 

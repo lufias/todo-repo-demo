@@ -8,14 +8,14 @@ import { Task } from '../services/database';
 import { useClickAway } from 'react-use';
 
 type TaskStatus = 'rejected' | 'new' | undefined;
-type TaskColor = 'yellow' | 'blue' | 'green';
+type TaskPriority = 'low' | 'medium' | 'high';
 
 interface TaskItemProps {
   id: string;
   title: string;
   author: string;
   status?: TaskStatus;
-  color?: TaskColor;
+  priority?: TaskPriority;
   description?: string;
   done: boolean;
   tags?: string[];
@@ -27,7 +27,8 @@ const TaskItem: FC<TaskItemProps> = ({
   status, 
   description, 
   done, 
-  tags 
+  tags, 
+  priority = 'medium' // default priority
 }) => {
   const dispatch = useAppDispatch();
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
@@ -53,7 +54,8 @@ const TaskItem: FC<TaskItemProps> = ({
     title,
     description,
     done,
-    tags
+    tags,
+    priority: priority || 'medium',
   };
 
   const handleDropdownAction = (action: 'edit' | 'view' | 'delete'): void => {
@@ -87,8 +89,14 @@ const TaskItem: FC<TaskItemProps> = ({
     setIsEditOpen(false);
   };
 
+  // Map priority prop to Tailwind border color class
+  const borderColorClass =
+    priority === 'low' ? 'border-l-sky-300' :
+    priority === 'high' ? 'border-l-rose-400' :
+    'border-l-amber-400';
+
   return (
-    <div className="group relative px-6 py-4 hover:bg-gray-50/50 transition-all duration-200 material-card">
+    <div className={`group relative px-6 py-4 hover:bg-gray-50/50 transition-all duration-200 material-card border-l-4 ${borderColorClass}`} data-testid="task-item-container">
       <div className="flex items-start gap-4">
         <button
           onClick={() => handleStatusChange(!done)}

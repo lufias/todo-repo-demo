@@ -72,10 +72,10 @@ const TaskView: FC<TaskViewProps> = () => {
                 title={task.title}
                 author=""
                 status={undefined}
-                color="blue"
                 description={task.description}
                 done={task.done}
                 tags={task.tags}
+                priority={task.priority}
               />
             );
           }}

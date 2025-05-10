@@ -26,9 +26,9 @@ export const loadTasksByList = createAsyncThunk(
 
 export const addTask = createAsyncThunk(
   'tasks/addTask',
-  async ({ listId, title, description, tags }: { listId: string; title: string; description?: string; tags?: string[] }, { rejectWithValue }) => {
+  async ({ listId, title, description, tags, priority }: { listId: string; title: string; description?: string; tags?: string[]; priority?: 'low' | 'medium' | 'high' }, { rejectWithValue }) => {
     try {
-      return await dbAddTask(listId, title, description, tags);
+      return await dbAddTask(listId, title, description, tags, priority);
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to add task');
     }

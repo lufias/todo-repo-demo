@@ -153,4 +153,31 @@ describe('AddTaskModal', () => {
     // Verify form is reset and modal is closed
     expect(onClose).toHaveBeenCalled();
   });
+
+  it('should render priority radio buttons and default to Low', () => {
+    renderModal();
+    const low = screen.getByTestId('priority-low') as HTMLInputElement;
+    const medium = screen.getByTestId('priority-medium') as HTMLInputElement;
+    const high = screen.getByTestId('priority-high') as HTMLInputElement;
+    expect(low).toBeDefined();
+    expect(medium).toBeDefined();
+    expect(high).toBeDefined();
+    expect(low.checked).toBe(true);
+    expect(medium.checked).toBe(false);
+    expect(high.checked).toBe(false);
+  });
+
+  it('should change priority selection when clicked', async () => {
+    const user = userEvent.setup();
+    renderModal();
+    const low = screen.getByTestId('priority-low') as HTMLInputElement;
+    const medium = screen.getByTestId('priority-medium') as HTMLInputElement;
+    const high = screen.getByTestId('priority-high') as HTMLInputElement;
+    await act(async () => { await user.click(medium); });
+    expect(medium.checked).toBe(true);
+    await act(async () => { await user.click(high); });
+    expect(high.checked).toBe(true);
+    await act(async () => { await user.click(low); });
+    expect(low.checked).toBe(true);
+  });
 }); 

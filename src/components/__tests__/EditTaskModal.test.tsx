@@ -33,7 +33,8 @@ const mockTask: Task = {
   title: 'Test Task',
   description: 'Test Description',
   done: false,
-  tags: ['work', 'urgent']
+  tags: ['work', 'urgent'],
+  priority: 'low',
 };
 
 // Mock the Redux state
@@ -259,7 +260,8 @@ describe('EditTaskModal', () => {
         title: 'Updated Task',
         description: 'Updated Description',
         done: false,
-        tags: ['work', 'urgent', 'new-tag']
+        tags: ['work', 'urgent', 'new-tag'],
+        priority: 'low',
       });
       expect(onClose).toHaveBeenCalled();
     });
@@ -311,5 +313,31 @@ describe('EditTaskModal', () => {
     mockTask.tags?.forEach(tag => {
       expect(screen.getByTestId(`tag-${tag}`)).toBeDefined();
     });
+  });
+
+  it('should render priority radio buttons and select correct value', () => {
+    renderModal({ task: { ...mockTask, priority: 'medium' } });
+    const low = screen.getByTestId('priority-low') as HTMLInputElement;
+    const medium = screen.getByTestId('priority-medium') as HTMLInputElement;
+    const high = screen.getByTestId('priority-high') as HTMLInputElement;
+    expect(low).toBeDefined();
+    expect(medium).toBeDefined();
+    expect(high).toBeDefined();
+    expect(low.checked).toBe(false);
+    expect(medium.checked).toBe(true);
+    expect(high.checked).toBe(false);
+  });
+
+  it('should change priority selection when clicked', async () => {
+    const user = userEvent.setup();
+    renderModal({ task: { ...mockTask, priority: 'high' } });
+    const low = screen.getByTestId('priority-low') as HTMLInputElement;
+    const medium = screen.getByTestId('priority-medium') as HTMLInputElement;
+    const high = screen.getByTestId('priority-high') as HTMLInputElement;
+    expect(high.checked).toBe(true);
+    await act(async () => { await user.click(medium); });
+    expect(medium.checked).toBe(true);
+    await act(async () => { await user.click(low); });
+    expect(low.checked).toBe(true);
   });
 }); 
