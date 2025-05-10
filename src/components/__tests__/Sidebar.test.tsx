@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import Sidebar from '../Sidebar';
 import { TestWrapper } from '../../test/test-utils';
+import { demoTasks } from '../../services/initDemoData';
 
 // Mock the SidebarFolder component
 vi.mock('../SidebarFolder', () => ({
@@ -24,10 +25,18 @@ vi.mock('../SidebarFolder', () => ({
 }));
 
 // Mock the database service
+const mockGetAllFolders = vi.fn().mockResolvedValue([]);
+const mockAddTask = vi.fn().mockImplementation((listId, title, description, tags, priority) => 
+  Promise.resolve({ id: 'task-1', listId, title, description, tags, priority, done: false })
+);
+const mockAddFolder = vi.fn().mockResolvedValue({ id: 'folder-1', name: 'Work' });
+const mockAddList = vi.fn().mockResolvedValue({ id: 'list-1', folderId: 'folder-1', content: 'My Tasks' });
+
 vi.mock('../../services/database', () => ({
-  getAllFolders: vi.fn().mockResolvedValue([
-    { id: 'folder-1', name: 'Test Folder' }
-  ])
+  getAllFolders: () => mockGetAllFolders(),
+  addTask: (...args: [string, string, string, string[], string]) => mockAddTask(...args),
+  addFolder: () => mockAddFolder(),
+  addList: () => mockAddList()
 }));
 
 // Mock the Redux state
@@ -75,6 +84,44 @@ describe('Sidebar', () => {
     
     expect(screen.getByText('Folders')).toBeDefined();
     expect(screen.getByTitle('Add new folder')).toBeDefined();
+  });
+
+  it('should initialize demo data when no folders exist', async () => {
+    mockGetAllFolders.mockResolvedValueOnce([]);
+
+    renderSidebar();
+
+    // Wait for initialization to complete
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    // Verify that demo tasks were added with correct data
+    await waitFor(() => {
+      demoTasks.forEach((task) => {
+        expect(mockAddTask).toHaveBeenCalledWith(
+          'list-1',
+          task.title,
+          task.description,
+          task.tags,
+          task.priority
+        );
+      });
+    });
+  });
+
+  it('should not initialize demo data when folders exist', async () => {
+    mockGetAllFolders.mockResolvedValueOnce([{ id: 'folder-1', name: 'Test Folder' }]);
+
+    renderSidebar();
+
+    // Wait for initialization to complete
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    // Verify that no demo tasks were added
+    expect(mockAddTask).not.toHaveBeenCalled();
   });
 
   it('should show folder input when clicking add folder button', async () => {

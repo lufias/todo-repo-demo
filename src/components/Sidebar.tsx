@@ -1,4 +1,4 @@
-import { useState, useEffect, FC, ChangeEvent, KeyboardEvent, MouseEvent } from 'react';
+import { useState, useEffect, FC, ChangeEvent, KeyboardEvent, MouseEvent, useRef } from 'react';
 import { FaFolder } from 'react-icons/fa';
 import { FiFolderPlus } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -15,7 +15,8 @@ import {
 } from '../store/slices/sidebarSlice';
 import { loadTasksByList } from '../store/slices/tasksSlice';
 import SidebarFolder from './SidebarFolder';
-import { Folder, getAllFolders } from '../services/database';
+import { Folder, List, getAllFolders, addTask } from '../services/database';
+import { demoTasks } from '../services/initDemoData';
 
 interface SidebarProps {
   // Add any props if needed in the future
@@ -32,19 +33,41 @@ const Sidebar: FC<SidebarProps> = () => {
   const [addingListFolderId, setAddingListFolderId] = useState<string | null>(null);
   const [newListName, setNewListName] = useState<string>('');
   const [activeListDropdown, setActiveListDropdown] = useState<string | null>(null);
+  const initialized = useRef(false);
 
   const disableDelete: boolean = folders.length === 1 && lists.length === 1;
 
   // Robust initialization: check storage directly
   useEffect(() => {
+    if (initialized.current) return;
+
     (async () => {
       const storedFolders = await getAllFolders();
       if (!storedFolders || storedFolders.length === 0) {
         // No folders in storage, create default
-        const folderAction = await dispatch(addFolderThunk('My Folder'));
+        const folderAction = await dispatch(addFolderThunk('Work'));
         const folder = folderAction.payload as Folder;
         if (folder) {
-          await dispatch(addListThunk({ folderId: folder.id, content: 'My List' }));
+          const listAction = await dispatch(addListThunk({ folderId: folder.id, content: 'My Tasks' }));
+          const list = listAction.payload as List;
+          
+          // Add demo tasks
+          if (list) {
+            // Add all demo tasks
+            for (const task of demoTasks) {
+              await addTask(
+                list.id,
+                task.title,
+                task.description,
+                task.tags,
+                task.priority
+              );
+            }
+
+            // Select the list and load its tasks
+            dispatch(setSelectedListId(list.id));
+            dispatch(loadTasksByList(list.id));
+          }
           setExpandedFolders(new Set([folder.id]));
         }
         // Always reload folders after creation to sync state
@@ -53,6 +76,7 @@ const Sidebar: FC<SidebarProps> = () => {
         // Just load folders as usual
         dispatch(loadFolders());
       }
+      initialized.current = true;
     })();
   }, [dispatch]);
 
