@@ -45,6 +45,15 @@ npm install
 npm run dev
 ```
 
+## 🔧 Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+VITE_APP_TITLE=Todo App
+VITE_APP_API_URL=http://localhost:3000
+```
+
 ## 🧪 Available Scripts
 
 - `npm run dev` - Start development server
@@ -83,10 +92,45 @@ For UI-based test runner:
 npm run test:ui
 ```
 
+### Test Coverage
+
+The project maintains a minimum test coverage of:
+- Statements: 80%
+- Branches: 80%
+- Functions: 80%
+- Lines: 80%
+
 ## 🎨 Styling
 
 The project uses Tailwind CSS for utility-first styling and SASS for custom styles. The main styles are defined in `src/index.scss`.
 
+### Style Guidelines
+
+- Use Tailwind utility classes for common styling
+- Create custom components for reusable UI elements
+- Follow BEM naming convention for custom CSS classes
+- Use CSS variables for theme colors and common values
+
+## 💻 Development Workflow
+
+1. Create a new branch for your feature/fix
+2. Make your changes
+3. Write/update tests
+4. Run the test suite
+5. Submit a pull request
+
 ## 🤝 Contributing
 
-This is a demo project, but if you'd like to contribute or have suggestions, please feel free to open an issue or submit a pull request. 
+This is a demo project, but if you'd like to contribute or have suggestions, please feel free to open an issue or submit a pull request.
+
+## 📝 Code Style
+
+- Use TypeScript for all new code
+- Follow ESLint rules
+- Use functional components with hooks
+- Write meaningful commit messages
+- Add comments for complex logic
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 

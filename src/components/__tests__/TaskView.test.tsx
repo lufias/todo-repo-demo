@@ -53,7 +53,8 @@ const mockTasks: Task[] = [
     title: 'Test Task 1',
     description: 'Test Description 1',
     done: false,
-    tags: ['work', 'urgent']
+    tags: ['work', 'urgent'],
+    priority: 'high'
   },
   {
     id: 'task-2',
@@ -61,7 +62,8 @@ const mockTasks: Task[] = [
     title: 'Test Task 2',
     description: 'Test Description 2',
     done: true,
-    tags: ['personal']
+    tags: ['personal'],
+    priority: 'medium'
   }
 ];
 
