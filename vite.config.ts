@@ -6,7 +6,7 @@ import svgr from 'vite-plugin-svgr'
 export default defineConfig({
   plugins: [react(), svgr()],
   server: {
-    allowedHosts: ['*.csb.app', '*.codesandbox.io']
+    allowedHosts: ['frontend_web']
   },
   resolve: {
     alias: {
