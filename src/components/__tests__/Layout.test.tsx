@@ -105,7 +105,7 @@ describe('Layout', () => {
   it('should render the footer with copyright text', () => {
     renderLayout();
     const footer = screen.getByTestId('footer');
-    expect(footer.textContent).toContain('© 2024 Todo App. All rights reserved.');
+    expect(footer.textContent).toContain('© 2025 Todo App. All rights reserved.');
   });
 
   it('should render the main content area with outlet', () => {

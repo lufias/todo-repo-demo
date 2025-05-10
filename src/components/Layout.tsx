@@ -90,7 +90,7 @@ const Layout: FC<LayoutProps> = () => {
       {/* Footer */}
       <footer className="bg-[var(--surface)] border-t border-gray-200 flex justify-center material-elevation-1" data-testid="footer">
         <div className="container px-4 py-4">
-          <p className="text-center text-[var(--text-secondary)]">© 2024 Todo App. All rights reserved.</p>
+          <p className="text-center text-[var(--text-secondary)]">© 2025 Todo App. All rights reserved.</p>
         </div>
       </footer>
     </div>
