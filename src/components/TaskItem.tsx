@@ -144,21 +144,21 @@ const TaskItem: FC<TaskItemProps> = ({
           {/* Desktop action buttons */}
           <button
             onClick={handleEditClick}
-            className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-gray-100 transition-all duration-200 opacity-0 group-hover:opacity-100 hidden sm:inline-flex ripple"
+            className="p-2 text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 hidden sm:inline-flex ripple"
             aria-label="Edit task"
           >
             <FaEdit className="w-4 h-4" />
           </button>
           <button
             onClick={handlePreviewClick}
-            className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-gray-100 transition-all duration-200 opacity-0 group-hover:opacity-100 hidden sm:inline-flex ripple"
+            className="p-2 text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 hidden sm:inline-flex ripple"
             aria-label="View task details"
           >
             <FaEye className="w-4 h-4" />
           </button>
           <button
             onClick={handleDelete}
-            className="p-2 text-[var(--text-secondary)] hover:text-[var(--error)] rounded-lg hover:bg-gray-100 transition-all duration-200 opacity-0 group-hover:opacity-100 hidden sm:inline-flex ripple"
+            className="p-2 text-gray-400 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100 hidden sm:inline-flex ripple"
             aria-label="Delete task"
           >
             <FaTrash className="w-4 h-4" />

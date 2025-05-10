@@ -15,6 +15,18 @@
     --text-secondary: #757575;
   }
 
+  .dark {
+    --primary: #90caf9;
+    --primary-dark: #1976d2;
+    --secondary: #ce93d8;
+    --secondary-dark: #9c27b0;
+    --background: #18181b;
+    --surface: #23272f;
+    --error: #ef9a9a;
+    --text-primary: #f3f4f6;
+    --text-secondary: #a1a1aa;
+  }
+
   body {
     @apply bg-[var(--background)] text-[var(--text-primary)] min-h-screen;
   }
@@ -22,7 +34,7 @@
 
 @layer components {
   .material-card {
-    @apply bg-[var(--surface)] rounded-lg shadow-md transition-all duration-200 hover:shadow-lg;
+    @apply bg-[var(--surface)] rounded-sm shadow-md transition-all duration-200 hover:shadow-lg;
   }
 
   .btn {

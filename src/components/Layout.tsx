@@ -3,6 +3,7 @@ import { useState, FC } from 'react';
 import { FaBars } from 'react-icons/fa';
 import Sidebar from './Sidebar';
 import ThemeToggle from './ThemeToggle';
+import AppLogo from '../assets/menu-food-left.svg?react';
 
 interface LayoutProps {
   // Add any props if needed in the future
@@ -34,6 +35,7 @@ const Layout: FC<LayoutProps> = () => {
             >
               <FaBars />
             </button>
+            <AppLogo className="w-8 h-8 text-[var(--primary)]" />
             <h1 className="text-2xl font-bold text-[var(--text-primary)]" data-testid="app-title">Todo App</h1>
           </div>
           <ThemeToggle />

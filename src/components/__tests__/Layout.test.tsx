@@ -23,6 +23,11 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
+vi.mock('../../assets/menu-food-left.svg', () => ({
+  ReactComponent: () => <svg data-testid="mock-logo" />,
+  default: '',
+}));
+
 const renderLayout = () => {
   return render(
     <MemoryRouter>
